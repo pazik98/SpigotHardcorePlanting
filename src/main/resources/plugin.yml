@@ -1,0 +1,5 @@
+name: HardcorePlanting
+version: '${project.version}'
+main: ru.pazik98.plugin.HardcorePlanting
+api-version: 1.13
+author: pazik98
