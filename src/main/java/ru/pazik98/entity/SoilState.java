@@ -9,11 +9,14 @@ public class SoilState {
     private float temperature;
     private Location location;
 
+    private PlantState plant;
+
     public SoilState(float humidity, float temperature, Location location) {
         this.humidity = humidity;
         this.temperature = temperature;
         this.fertilizer = 0f;
         this.location = location;
+        this.plant = null;
     }
 
     public float getHumidity() {
@@ -42,6 +45,18 @@ public class SoilState {
 
     public void descreaseFertilizer(float count) {
         fertilizer -= count;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public PlantState getPlant() {
+        return plant;
+    }
+
+    public void setPlant(PlantState plant) {
+        this.plant = plant;
     }
 
     @Override

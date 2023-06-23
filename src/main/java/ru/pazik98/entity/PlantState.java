@@ -5,32 +5,32 @@ import org.bukkit.Material;
 
 public class PlantState {
 
-    private Material type;
+    private PlantType plantType;
     private int light;
-    private int age;
+    private long plantingTick;
     private int growthPhase;
     private float maturity;
     private float productivity;
     private float decay;
-
     private Location location;
 
     private SoilState soil;
+    private boolean isDead;
 
-    public PlantState(Material type, SoilState soil, Location location) {
-        this.type = type;
+    public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick) {
+        this.plantType = plantType;
         this.light = 0;
-        this.age = 0;
+        this.plantingTick = plantingTick;
         this.growthPhase = 0;
         this.maturity = 0f;
         this.productivity = 0f;
         this.decay = 0f;
         this.soil = soil;
         this.location = location;
+        this.isDead = false;
     }
 
     public void update() {
-        age += 1;
         grow();
     }
 
@@ -41,15 +41,16 @@ public class PlantState {
     @Override
     public String toString() {
         return "PlantState{" +
-                "type=" + type +
+                "plantType=" + plantType +
                 ", light=" + light +
-                ", age=" + age +
+                ", plantingTick=" + plantingTick +
                 ", growthPhase=" + growthPhase +
                 ", maturity=" + maturity +
                 ", productivity=" + productivity +
                 ", decay=" + decay +
                 ", location=" + location +
                 ", soil=" + soil +
+                ", isDead=" + isDead +
                 '}';
     }
 }
