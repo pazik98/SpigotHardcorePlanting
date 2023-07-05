@@ -7,6 +7,8 @@ public class SoilState {
     private float humidity;
     private float fertilizer;
     private float temperature;
+    private float water;
+    private float waterCapacity;
     private Location location;
 
     private PlantState plant;
@@ -15,6 +17,8 @@ public class SoilState {
         this.humidity = humidity;
         this.temperature = temperature;
         this.fertilizer = 0f;
+        this.water = 0f;
+        this.waterCapacity = 100f;
         this.location = location;
         this.plant = null;
     }
@@ -31,20 +35,20 @@ public class SoilState {
         return temperature;
     }
 
-    public void increaseHumidity(float count) {
-        humidity += count;
-    }
-
-    public void descreaseHumidity(float count) {
-        humidity -= count;
-    }
-
     public void increaseFertilizer(float count) {
         fertilizer += count;
     }
 
-    public void descreaseFertilizer(float count) {
+    public void decreaseFertilizer(float count) {
         fertilizer -= count;
+    }
+
+    public void increaseWater(float count) {
+        water += count;
+    }
+
+    public void decreaseWater(float count) {
+        water -= count;
     }
 
     public Location getLocation() {
@@ -65,7 +69,9 @@ public class SoilState {
                 "humidity=" + humidity +
                 ", fertilizer=" + fertilizer +
                 ", temperature=" + temperature +
+                ", water=" + water + "/" + waterCapacity +
                 ", location=" + location +
+                ", plant=" + plant +
                 '}';
     }
 }
