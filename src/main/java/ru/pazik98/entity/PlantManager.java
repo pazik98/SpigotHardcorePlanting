@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PlantManager {
+    private static PlantManager instance;
 
     private final Logger logger = Bukkit.getLogger();
     private List<SoilState> soilList = new ArrayList();
@@ -20,7 +21,7 @@ public class PlantManager {
     public void createSoil(Block block) {
         SoilState soil = new SoilState((float) block.getHumidity(), (float) block.getTemperature(), block.getLocation());
         soilList.add(soil);
-        logger.log(Level.FINE, "Created new soil! " + soil);
+        logger.log(Level.WARNING, "Created new soil! " + soil);
     }
 
     public SoilState getSoil(Location location) {
@@ -35,6 +36,13 @@ public class PlantManager {
         PlantState plant = new PlantState(PlantType.getPlantType(seedMaterial), getSoil(soilBlock.getLocation()),
                 plantLocation, soilBlock.getWorld().getFullTime());
         plantList.add(plant);
-        logger.log(Level.FINE, "Created new plant! " + plant);
+        logger.log(Level.WARNING, "Created new plant! " + plant);
+    }
+
+    public static PlantManager getInstance() {
+        if (instance == null) {
+            instance = new PlantManager();
+        }
+        return instance;
     }
 }

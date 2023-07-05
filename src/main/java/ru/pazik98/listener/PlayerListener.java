@@ -7,12 +7,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import ru.pazik98.entity.PlantManager;
 
 import java.util.logging.Logger;
 
 public class PlayerListener implements Listener {
 
     private Logger logger = Bukkit.getLogger();
+    private PlantManager plantManager = PlantManager.getInstance();
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
@@ -21,8 +23,8 @@ public class PlayerListener implements Listener {
             Block block = e.getClickedBlock();
 
             // Check for making farmland
-            if (isHoe(material) && isEarth(block.getType())) {
-                logger.warning("creating entity!");
+            if (isHoe(material) && isSoil(block.getType())) {
+                plantManager.createSoil(e.getClickedBlock());
             }
         }
     }
@@ -32,7 +34,7 @@ public class PlayerListener implements Listener {
                 m.equals(Material.GOLDEN_HOE) || m.equals(Material.DIAMOND_HOE) || m.equals(Material.NETHERITE_HOE);
     }
 
-    private boolean isEarth(Material m) {
+    private boolean isSoil(Material m) {
         return m.equals(Material.GRASS_BLOCK) || m.equals(Material.DIRT_PATH) || m.equals(Material.DIRT);
     }
 }
