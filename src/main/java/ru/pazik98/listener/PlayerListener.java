@@ -1,4 +1,4 @@
-package ru.pazik98;
+package ru.pazik98.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,7 +22,6 @@ public class PlayerListener implements Listener {
 
             // Check for making farmland
             if (isHoe(material) && isEarth(block.getType())) {
-
                 logger.warning("creating entity!");
             }
         }
