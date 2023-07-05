@@ -31,6 +31,14 @@ public class PlantManager {
         return null;
     }
 
+    public void removeSoil(Location location) {
+        SoilState soil = getSoil(location);
+        if (soil != null) {
+            soilList.remove(soil);
+            logger.log(Level.WARNING, "Soil removed " + soil.getLocation());
+        }
+    }
+
     public void createPlant(Material seedMaterial, Block soilBlock) {
         Location plantLocation = soilBlock.getLocation().clone().add(0, 1, 0);
         PlantState plant = new PlantState(PlantType.getPlantType(seedMaterial), getSoil(soilBlock.getLocation()),
