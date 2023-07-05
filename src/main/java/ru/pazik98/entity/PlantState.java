@@ -6,7 +6,6 @@ import org.bukkit.Material;
 public class PlantState {
 
     private PlantType plantType;
-    private int light;
     private long plantingTick;
     private int growthPhase;
     private float maturity;
@@ -19,7 +18,6 @@ public class PlantState {
 
     public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick) {
         this.plantType = plantType;
-        this.light = 0;
         this.plantingTick = plantingTick;
         this.growthPhase = 0;
         this.maturity = 0f;
@@ -42,7 +40,6 @@ public class PlantState {
     public String toString() {
         return "PlantState{" +
                 "plantType=" + plantType +
-                ", light=" + light +
                 ", plantingTick=" + plantingTick +
                 ", growthPhase=" + growthPhase +
                 ", maturity=" + maturity +
