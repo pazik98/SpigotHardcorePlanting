@@ -41,10 +41,29 @@ public class PlantManager {
 
     public void createPlant(Material seedMaterial, Block soilBlock) {
         Location plantLocation = soilBlock.getLocation().clone().add(0, 1, 0);
-        PlantState plant = new PlantState(PlantType.getPlantType(seedMaterial), getSoil(soilBlock.getLocation()),
+        SoilState soil = getSoil(soilBlock.getLocation());
+        if (soil == null) {
+            logger.warning("Cannot create plant! Soil isn't exist.");
+            return;
+        }
+        PlantState plant = new PlantState(PlantType.getPlantType(seedMaterial), soil,
                 plantLocation, soilBlock.getWorld().getFullTime());
         plantList.add(plant);
         logger.log(Level.WARNING, "Created new plant! " + plant);
+    }
+
+    public PlantState getPlant(Location location) {
+        for (PlantState plantState : plantList) {
+            if (plantState.getLocation().equals(location)) return plantState;
+        }
+        return null;
+    }
+
+    public void removePlant(Location location) {
+        PlantState plantState = getPlant(location);
+        if (plantState != null) {
+            plantList.remove(plantState);
+        }
     }
 
     public static PlantManager getInstance() {
