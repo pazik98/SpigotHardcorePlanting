@@ -4,9 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.block.*;
 import ru.pazik98.entity.PlantManager;
 
 import java.util.logging.Logger;
@@ -33,6 +31,13 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         if (e.getBlock().getType().equals(Material.FARMLAND)) {
+            plantManager.removeSoil(e.getBlock().getLocation());
+        }
+    }
+
+    @EventHandler
+    public void onBlockFade(BlockFadeEvent e) {
+        if (e.getBlock().getBlockData().getMaterial().equals(Material.FARMLAND)) {
             plantManager.removeSoil(e.getBlock().getLocation());
         }
     }
