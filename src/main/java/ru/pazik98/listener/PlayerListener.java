@@ -12,6 +12,7 @@ import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.pazik98.entity.PlantManager;
+import ru.pazik98.entity.PlantState;
 import ru.pazik98.entity.PlantType;
 import ru.pazik98.entity.SoilState;
 
@@ -50,6 +51,20 @@ public class PlayerListener implements Listener {
             if (PlantType.getPlantType(material) != null && block.getType().equals(Material.FARMLAND)) {
                 logger.warning("Planting on " + block.getLocation());
                 plantManager.createPlant(material, block);
+            }
+
+            // Check for research
+            if (material.equals(Material.PAPER) && PlantType.isPlant(block.getType())) {
+                PlantState plant = plantManager.getPlant(block.getLocation());
+                if (plant == null) return;
+                StringBuilder message = new StringBuilder();
+                message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
+                message.append(" Soil humidity: ").append(plant.getSoil().getHumidity()).append("\n");
+                message.append(" Soil temperature: ").append(plant.getSoil().getTemperature()).append("\n");
+                message.append(" Water: ").append(plant.getSoil().getWater()).append("/100\n");
+                message.append(" Fertilizer: ").append(plant.getSoil().getFertilizer()).append("\n");
+                message.append(" --- ");
+                e.getPlayer().sendMessage(message.toString());
             }
         }
     }

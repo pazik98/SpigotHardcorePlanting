@@ -51,6 +51,10 @@ public class SoilState {
         water -= count;
     }
 
+    public float getWater() {
+        return water;
+    }
+
     public Location getLocation() {
         return location;
     }
