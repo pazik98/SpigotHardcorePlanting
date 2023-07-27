@@ -148,4 +148,11 @@ public enum PlantType {
         }
         return null;
     }
+
+    public static boolean isPlant(Material blockMaterial) {
+        for (PlantType plantType : PlantType.values()) {
+            if (blockMaterial.equals(plantType.plantMaterial)) return true;
+        }
+        return false;
+    }
 }

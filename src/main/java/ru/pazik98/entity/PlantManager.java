@@ -4,7 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.plugin.PluginLogger;
+import org.bukkit.scheduler.BukkitRunnable;
+import ru.pazik98.plugin.HardcorePlanting;
+import ru.pazik98.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +14,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PlantManager {
+
     private static PlantManager instance;
 
     private final Logger logger = Bukkit.getLogger();
     private List<SoilState> soilList = new ArrayList();
     private List<PlantState> plantList = new ArrayList<>();
+    private float tickFrequency = 0.1f;
+
+    public PlantManager() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                tick();
+            }
+        }.runTaskTimer(HardcorePlanting.getInstance(), 1, 0);
+    }
 
     public void createSoil(Block block) {
         SoilState soil = new SoilState((float) block.getHumidity(), (float) block.getTemperature(), block.getLocation());
@@ -63,6 +76,17 @@ public class PlantManager {
         PlantState plantState = getPlant(location);
         if (plantState != null) {
             plantList.remove(plantState);
+        }
+    }
+
+    public void tick() {
+        for (PlantState plant : plantList) {
+            // Check for plant existing
+            if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
+                removePlant(plant.getLocation());
+                return;
+            }
+            if (Util.getRandom(tickFrequency)) plant.update();
         }
     }
 

@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import ru.pazik98.entity.PlantManager;
+import ru.pazik98.entity.PlantType;
 
 import java.util.logging.Logger;
 
@@ -16,6 +17,10 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlantGrow(BlockGrowEvent e) {
+        if (PlantType.isPlant(e.getBlock().getType())) {
+            e.setCancelled(true);
+            return;
+        }
         logger.warning("Grow event at [" + e.getNewState().getLocation() + "]");
         logger.warning(e.getNewState().getBlock().getBlockData().getAsString());
         logger.warning("Time: " + Bukkit.getWorlds().get(0).getTime() + "\n");

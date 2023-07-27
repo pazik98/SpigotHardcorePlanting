@@ -1,13 +1,16 @@
 package ru.pazik98.entity;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import ru.pazik98.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class PlantState {
 
@@ -21,6 +24,8 @@ public class PlantState {
 
     private SoilState soil;
     private boolean isDead;
+
+    private final Logger logger = Bukkit.getLogger();
 
     public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick) {
         this.plantType = plantType;
@@ -39,7 +44,11 @@ public class PlantState {
     }
 
     private void grow() {
-
+        Ageable ageable = (Ageable) this.getLocation().getBlock().getBlockData();
+        if (ageable.getAge() != ageable.getMaximumAge()) {
+            ageable.setAge(ageable.getAge() + 1);
+            this.getLocation().getBlock().setBlockData(ageable);
+        }
     }
 
     public Location getLocation() {
@@ -57,6 +66,10 @@ public class PlantState {
         harvest.add(seeds);
         harvest.add(crop);
         return harvest;
+    }
+
+    public PlantType getPlantType() {
+        return plantType;
     }
 
     @Override
