@@ -86,6 +86,7 @@ public class PlantManager {
                 removePlant(plant.getLocation());
                 return;
             }
+            plant.incrementUpdatesTickNumber();
             if (Util.getRandom(tickFrequency)) plant.update();
         }
     }

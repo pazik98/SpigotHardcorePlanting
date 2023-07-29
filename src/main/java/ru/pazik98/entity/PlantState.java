@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
+import ru.pazik98.util.Convert;
 import ru.pazik98.util.Util;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class PlantState {
 
     private PlantType plantType;
     private long plantingTick;
+    private long updatesTickNumber;
     private int growthPhase;
     private float maturity;
     private float productivity;
@@ -30,6 +32,7 @@ public class PlantState {
     public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick) {
         this.plantType = plantType;
         this.plantingTick = plantingTick;
+        this.updatesTickNumber = 0;
         this.growthPhase = 0;
         this.maturity = 0f;
         this.productivity = 0f;
@@ -48,7 +51,33 @@ public class PlantState {
         if (ageable.getAge() != ageable.getMaximumAge()) {
             ageable.setAge(ageable.getAge() + 1);
             this.getLocation().getBlock().setBlockData(ageable);
+            growthPhase++;
         }
+    }
+
+    public void incrementUpdatesTickNumber() {
+        updatesTickNumber++;
+    }
+
+    public void incrementUpdatesTickNumber(int ticks) {
+        updatesTickNumber += ticks;
+    }
+
+    public long getUpdatesTickNumber() {
+        return updatesTickNumber;
+    }
+
+    public float getHappiness() {
+        float happiness = 100.0f;
+        // light reason
+        float light = 1f;
+        if (getLocation().getBlock().getLightFromSky() < getPlantType().getExpectedLight()) light = 0.0f;
+        // water reason
+        float water = 1.0f - Math.abs(getPlantType().getExpectedHumidity() / 100 - getSoil().getHumidity());
+        // temperature reason
+        float temperature = 1.0f - Math.abs(Convert.degreesToTemperature(getPlantType().getExpectedTemperature()) - getSoil().getTemperature()) / 4;
+        System.out.println("--happiness: " + light + " " + water + " " + temperature);
+        return (happiness + water + temperature) / 3;
     }
 
     public Location getLocation() {

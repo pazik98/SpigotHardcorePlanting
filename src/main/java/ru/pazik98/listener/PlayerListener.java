@@ -62,6 +62,8 @@ public class PlayerListener implements Listener {
                     if (plant == null) return;
                     StringBuilder message = new StringBuilder();
                     message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
+                    message.append(" Happiness: ").append(Math.round(plant.getHappiness())).append("%\n");
+                    message.append(" Growth time: ").append(Convert.ticksToTime(plant.getUpdatesTickNumber())).append("\n");
                     message.append(" Growth phase: ").append(plant.getGrowthPhase()).append("\n");
                     message.append(" Maturity: ").append(plant.getMaturity()).append("%\n");
                     message.append(" Productivity: ").append(plant.getProductivity()).append("%\n");
