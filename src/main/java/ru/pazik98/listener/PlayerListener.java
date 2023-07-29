@@ -15,6 +15,7 @@ import ru.pazik98.entity.PlantManager;
 import ru.pazik98.entity.PlantState;
 import ru.pazik98.entity.PlantType;
 import ru.pazik98.entity.SoilState;
+import ru.pazik98.util.Convert;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -54,17 +55,33 @@ public class PlayerListener implements Listener {
             }
 
             // Check for research
-            if (material.equals(Material.PAPER) && PlantType.isPlant(block.getType())) {
-                PlantState plant = plantManager.getPlant(block.getLocation());
-                if (plant == null) return;
-                StringBuilder message = new StringBuilder();
-                message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
-                message.append(" Soil humidity: ").append(plant.getSoil().getHumidity()).append("\n");
-                message.append(" Soil temperature: ").append(plant.getSoil().getTemperature()).append("\n");
-                message.append(" Water: ").append(plant.getSoil().getWater()).append("/100\n");
-                message.append(" Fertilizer: ").append(plant.getSoil().getFertilizer()).append("\n");
-                message.append(" --- ");
-                e.getPlayer().sendMessage(message.toString());
+            if (material.equals(Material.PAPER)) {
+                // Click to plant
+                if (PlantType.isPlant(block.getType())) {
+                    PlantState plant = plantManager.getPlant(block.getLocation());
+                    if (plant == null) return;
+                    StringBuilder message = new StringBuilder();
+                    message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
+                    message.append(" Growth phase: ").append(plant.getGrowthPhase()).append("\n");
+                    message.append(" Maturity: ").append(plant.getMaturity()).append("%\n");
+                    message.append(" Productivity: ").append(plant.getProductivity()).append("%\n");
+                    message.append(" Decaying: ").append(plant.getDecay()).append("%\n");
+                    message.append(" ------- ");
+                    e.getPlayer().sendMessage(message.toString());
+                }
+                // Click to farmland
+                if (block.getType().equals(Material.FARMLAND)) {
+                    SoilState soil = plantManager.getSoil(block.getLocation());
+                    if (soil == null) return;
+                    StringBuilder message = new StringBuilder();
+                    message.append(" --- SOIL ---\n");
+                    message.append(" Humidity: ").append(Convert.humidityToPercent(soil.getHumidity())).append("%\n");
+                    message.append(" Temperature: ").append(Convert.temperatureToDegrees(soil.getTemperature())).append("°с\n");
+                    message.append(" Water: ").append(soil.getWater()).append("/").append(soil.getWaterCapacity()).append("mB\n");
+                    message.append(" Fertilizer: ").append(soil.getFertilizer()).append("g\n");
+                    message.append(" ------- ");
+                    e.getPlayer().sendMessage(message.toString());
+                }
             }
         }
     }

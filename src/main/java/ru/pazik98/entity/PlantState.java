@@ -72,6 +72,30 @@ public class PlantState {
         return plantType;
     }
 
+    public long getPlantingTick() {
+        return plantingTick;
+    }
+
+    public int getGrowthPhase() {
+        return growthPhase;
+    }
+
+    public float getMaturity() {
+        return maturity;
+    }
+
+    public float getProductivity() {
+        return productivity;
+    }
+
+    public float getDecay() {
+        return decay;
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
     @Override
     public String toString() {
         return "PlantState{" +
