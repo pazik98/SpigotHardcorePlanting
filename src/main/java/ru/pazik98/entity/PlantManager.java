@@ -20,7 +20,7 @@ public class PlantManager {
     private final Logger logger = Bukkit.getLogger();
     private List<SoilState> soilList = new ArrayList();
     private List<PlantState> plantList = new ArrayList<>();
-    private float tickFrequency = 0.1f;
+    private float tickFrequency = 0.05f;
 
     public PlantManager() {
         new BukkitRunnable() {
@@ -86,8 +86,17 @@ public class PlantManager {
                 removePlant(plant.getLocation());
                 return;
             }
+            // Check for death
+            if (plant.isDead()) {
+                removePlant(plant.getLocation());
+                plant.getLocation().getBlock().setType(Material.DEAD_BUSH);
+                return;
+            }
             plant.incrementUpdatesTickNumber();
-            if (Util.getRandom(tickFrequency)) plant.update();
+            if (Util.getRandom(tickFrequency)) {
+                logger.warning("plant update");
+                plant.update();
+            }
         }
     }
 

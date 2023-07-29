@@ -16,9 +16,9 @@ public class SoilState {
     public SoilState(float humidity, float temperature, Location location) {
         this.humidity = humidity;
         this.temperature = temperature;
-        this.fertilizer = 0f;
-        this.water = 0f;
-        this.waterCapacity = 100f;
+        this.fertilizer = 0f;;
+        this.waterCapacity = 1000f;
+        this.water = waterCapacity * humidity;
         this.location = location;
         this.plant = null;
     }

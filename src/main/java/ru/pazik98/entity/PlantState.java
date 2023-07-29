@@ -7,6 +7,7 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import ru.pazik98.util.Convert;
+import ru.pazik98.util.GrowthBonus;
 import ru.pazik98.util.Util;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class PlantState {
         this.plantType = plantType;
         this.plantingTick = plantingTick;
         this.updatesTickNumber = 0;
-        this.growthPhase = 0;
+        this.growthPhase = 1;
         this.maturity = 0f;
         this.productivity = 0f;
         this.decay = 0f;
@@ -43,16 +44,72 @@ public class PlantState {
     }
 
     public void update() {
-        grow();
+        // Growth phase is maximum?
+        if (growthPhase == getPlantType().getGrowthStageCount()) {
+            //...
+        } else {
+            // calculating deviation
+            float humidityDiff = getPlantType().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
+            float temperatureDiff = getPlantType().getExpectedTemperature() - Convert.temperatureToDegrees(getSoil().getTemperature());
+
+            // calculating grow chance bonuses
+            float growChanceHumidityBonus = GrowthBonus.GROWTH_SPEED.getHumidityExcess() * humidityDiff;
+            if (humidityDiff < 0) growChanceHumidityBonus = GrowthBonus.GROWTH_SPEED.getHumidityDeficit() * humidityDiff;
+
+            float growChanceTemperatureBonus = GrowthBonus.GROWTH_SPEED.getTemperatureExcess() * temperatureDiff;
+            if (temperatureDiff < 0) growChanceTemperatureBonus = GrowthBonus.GROWTH_SPEED.getTemperatureDeficit() * temperatureDiff;
+
+            float growChanceFertilizerBonus = 0;
+            if (soil.getFertilizer() > plantType.getGrowthFertilizerCost()) growChanceFertilizerBonus = GrowthBonus.GROWTH_SPEED.getFertilizer();
+
+            float growChance = (growChanceHumidityBonus + growChanceTemperatureBonus + growChanceFertilizerBonus) / plantType.getGrowthTicksCost();
+            logger.warning("grow chance: " + growChance);
+
+            // Plant is trying to grow?
+            if (Util.getRandom(growChance)) {
+                logger.warning("trying to grow");
+                //calculating death chance bonus
+                float deathChanceHumidityBonus = GrowthBonus.DEATH_CHANCE.getHumidityExcess() * humidityDiff;
+                if (humidityDiff < 0) deathChanceHumidityBonus = GrowthBonus.DEATH_CHANCE.getHumidityDeficit() * humidityDiff;
+
+                float deathChanceTemperatureBonus = GrowthBonus.DEATH_CHANCE.getTemperatureExcess() * temperatureDiff;
+                if (temperatureDiff < 0) deathChanceTemperatureBonus = GrowthBonus.DEATH_CHANCE.getTemperatureDeficit() * temperatureDiff;
+
+                float deathChance = deathChanceHumidityBonus + deathChanceTemperatureBonus;
+                logger.warning("death chance: " + deathChance);
+
+                // plant died?
+                if (Util.getRandom(deathChance)) {
+                    logger.warning("died");
+                    die();
+                } else {
+                    logger.warning("grow");
+                    grow();
+                }
+            }
+        }
     }
 
     private void grow() {
+        // Check for needed resources
+        if (getSoil().getWater() < getPlantType().getGrowthWaterCost()) {
+            return;
+        }
+
+        // consume resources
+        getSoil().decreaseWater(getPlantType().getGrowthWaterCost());
+
+        // change age
         Ageable ageable = (Ageable) this.getLocation().getBlock().getBlockData();
         if (ageable.getAge() != ageable.getMaximumAge()) {
             ageable.setAge(ageable.getAge() + 1);
             this.getLocation().getBlock().setBlockData(ageable);
             growthPhase++;
         }
+    }
+
+    private void die() {
+        isDead = true;
     }
 
     public void incrementUpdatesTickNumber() {
@@ -90,8 +147,10 @@ public class PlantState {
 
     public List<ItemStack> getCrops() {
         List<ItemStack> harvest = new ArrayList<>();
-        ItemStack seeds = new ItemStack(plantType.getSeedMaterial(), 2);
-        ItemStack crop = new ItemStack(plantType.getPlantMaterial(), 1);
+        int seedCount = Util.getRandomRound(plantType.getSeedCount() * productivity);
+        int cropCount = Util.getRandomRound(plantType.getExpectedHarvest() * productivity);
+        ItemStack seeds = new ItemStack(plantType.getSeedMaterial(), seedCount);
+        ItemStack crop = new ItemStack(plantType.getPlantMaterial(), cropCount);
         harvest.add(seeds);
         harvest.add(crop);
         return harvest;
