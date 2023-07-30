@@ -44,25 +44,48 @@ public class PlantState {
     }
 
     public void update() {
-        // Growth phase is maximum?
-        if (growthPhase == getPlantType().getGrowthStageCount()) {
-            //...
-        } else {
-            // calculating deviation
-            float humidityDiff = getPlantType().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
-            float temperatureDiff = getPlantType().getExpectedTemperature() - Convert.temperatureToDegrees(getSoil().getTemperature());
+        // calculating deviation
+        float humidityDiff = getPlantType().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
+        float temperatureDiff = getPlantType().getExpectedTemperature() - Convert.temperatureToDegrees(getSoil().getTemperature());
 
+        // Growth phase is maximum?
+        if (growthPhase == plantType.getGrowthStageCount()) {
+            // Maturation phase is maximum?
+            if (growthPhase == plantType.getGrowthStageCount() + plantType.getMaturationStageCount()) {
+                // calculating decaying chance bonus
+                float decayChanceHumidityBonus = GrowthBonus.DECAY_SPEED.getHumidityExcess() * humidityDiff;
+                if (humidityDiff < 0) decayChanceHumidityBonus = GrowthBonus.DECAY_SPEED.getHumidityDeficit() * humidityDiff;
+
+                float decayChanceTemperatureBonus = GrowthBonus.DECAY_SPEED.getTemperatureExcess() * temperatureDiff;
+                if (temperatureDiff < 0) decayChanceTemperatureBonus = GrowthBonus.DECAY_SPEED.getTemperatureDeficit();
+
+                float decayChance = (decayChanceHumidityBonus + decayChanceTemperatureBonus) / plantType.getDecayTicksCost();
+                if (Util.getRandom(decayChance)) {
+                    decay();
+                }
+            } else {
+                // calculating mature chance bonuses
+                float matureChanceTemperatureBonus = GrowthBonus.MATURITY_SPEED.getTemperatureExcess() * temperatureDiff;
+                if (temperatureDiff < 0) matureChanceTemperatureBonus = GrowthBonus.MATURITY_SPEED.getTemperatureExcess() * temperatureDiff;
+
+                float matureChanceFertilizerBonus = 0;
+                if (soil.getFertilizer() >= plantType.getMaturationFertilizerCost()) matureChanceFertilizerBonus = GrowthBonus.MATURITY_SPEED.getFertilizer();
+
+                float matureChance = (matureChanceTemperatureBonus + matureChanceFertilizerBonus) / plantType.getMaturationTicksCost();
+                if (Util.getRandom(matureChance)) {
+                    mature();
+                }
+            }
+        } else {
             // calculating grow chance bonuses
-            float growChanceHumidityBonus = GrowthBonus.GROWTH_SPEED.getHumidityExcess() * humidityDiff;
-            if (humidityDiff < 0) growChanceHumidityBonus = GrowthBonus.GROWTH_SPEED.getHumidityDeficit() * humidityDiff;
 
             float growChanceTemperatureBonus = GrowthBonus.GROWTH_SPEED.getTemperatureExcess() * temperatureDiff;
             if (temperatureDiff < 0) growChanceTemperatureBonus = GrowthBonus.GROWTH_SPEED.getTemperatureDeficit() * temperatureDiff;
 
             float growChanceFertilizerBonus = 0;
-            if (soil.getFertilizer() > plantType.getGrowthFertilizerCost()) growChanceFertilizerBonus = GrowthBonus.GROWTH_SPEED.getFertilizer();
+            if (soil.getFertilizer() >= plantType.getGrowthFertilizerCost()) growChanceFertilizerBonus = GrowthBonus.GROWTH_SPEED.getFertilizer();
 
-            float growChance = (growChanceHumidityBonus + growChanceTemperatureBonus + growChanceFertilizerBonus) / plantType.getGrowthTicksCost();
+            float growChance = (growChanceTemperatureBonus + growChanceFertilizerBonus) / plantType.getGrowthTicksCost();
             logger.warning("grow chance: " + growChance);
 
             // Plant is trying to grow?
@@ -115,6 +138,36 @@ public class PlantState {
         isDead = true;
     }
 
+    private void mature() {
+        // check for needed resources
+        if (soil.getWater() < plantType.getMaturationWaterCost()) {
+            return;
+        }
+        // consume
+        float productivityFertilizerBonus = 0;
+
+        soil.decreaseWater(plantType.getMaturationWaterCost());
+        if (soil.getFertilizer() >= plantType.getMaturationFertilizerCost()) {
+            soil.decreaseFertilizer(plantType.getMaturationFertilizerCost());
+            productivityFertilizerBonus = GrowthBonus.CROP_AMOUNT.getFertilizer();
+        }
+
+        // change maturity
+        growthPhase++;
+        maturity = (float) (growthPhase - plantType.getGrowthStageCount()) / plantType.getMaturationStageCount();
+
+        // change productivity
+        float humidityDiff = soil.getHumidity() - plantType.getExpectedHumidity();
+        float productivityHumidityBonus = GrowthBonus.CROP_AMOUNT.getHumidityExcess() * humidityDiff;
+        if (humidityDiff < 0) productivityHumidityBonus = GrowthBonus.CROP_AMOUNT.getHumidityDeficit() * humidityDiff;
+        productivity += ((float)(growthPhase - plantType.getMaturationStageCount()) / plantType.getMaturationStageCount() *
+                (productivityHumidityBonus + productivityFertilizerBonus));
+    }
+
+    private void decay() {
+
+    }
+
     public void incrementUpdatesTickNumber() {
         updatesTickNumber++;
     }
@@ -136,7 +189,6 @@ public class PlantState {
         float water = 1.0f - Math.abs(getPlantType().getExpectedHumidity() / 100 - getSoil().getHumidity());
         // temperature reason
         float temperature = 1.0f - Math.abs(Convert.degreesToTemperature(getPlantType().getExpectedTemperature()) - getSoil().getTemperature()) / 4;
-        System.out.println("--happiness: " + light + " " + water + " " + temperature);
         return (happiness + water + temperature) / 3;
     }
 
