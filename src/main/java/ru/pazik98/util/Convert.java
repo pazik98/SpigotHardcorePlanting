@@ -15,9 +15,9 @@ public class Convert {
     }
 
     public static String ticksToTime(long ticks) {
-        int minutes = (int) ticks / 20 / 60;
-        int hours = minutes / 60;
-        if (hours > 0) minutes = minutes % hours;
-        return hours + "h " + minutes + "m";
+        int hours = (int) ticks / (20 * 60 * 60);
+        int minutes = (int) (ticks / (20 * 60)) - (hours * 60);
+        int seconds = (int) (ticks / 20) - (minutes * 60) - (hours * 60 * 60);
+        return hours + "h " + minutes + "m " + seconds + "s";
     }
 }
