@@ -98,6 +98,9 @@ public class PlantState {
 
         // consume resources
         getSoil().decreaseWater(getPlantType().getGrowthWaterCost());
+        if (soil.getFertilizer() >= plantType.getGrowthFertilizerCost()) {
+            soil.decreaseFertilizer(plantType.getGrowthFertilizerCost());
+        }
 
         // change age
         Ageable ageable = (Ageable) this.getLocation().getBlock().getBlockData();
