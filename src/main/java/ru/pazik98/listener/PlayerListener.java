@@ -65,9 +65,9 @@ public class PlayerListener implements Listener {
                     message.append(" Happiness: ").append(Math.round(plant.getHappiness())).append("%\n");
                     message.append(" Growth time: ").append(Convert.ticksToTime(plant.getUpdatesTickNumber())).append("\n");
                     message.append(" Growth phase: ").append(plant.getGrowthPhase()).append("\n");
-                    message.append(" Maturity: ").append(plant.getMaturity()).append("%\n");
-                    message.append(" Productivity: ").append(plant.getProductivity()).append("%\n");
-                    message.append(" Decaying: ").append(plant.getDecay()).append("%\n");
+                    message.append(" Maturity: ").append(plant.getMaturity() * 100).append("%\n");
+                    message.append(" Productivity: ").append(plant.getProductivity() * 100).append("%\n");
+                    message.append(" Decaying: ").append(plant.getDecay() * 100).append("%\n");
                     message.append(" ------- ");
                     e.getPlayer().sendMessage(message.toString());
                 }

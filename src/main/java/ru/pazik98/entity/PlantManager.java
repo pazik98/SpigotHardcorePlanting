@@ -94,7 +94,6 @@ public class PlantManager {
             }
             plant.incrementUpdatesTickNumber();
             if (Util.getRandom(tickFrequency)) {
-                logger.warning("plant update");
                 plant.update();
             }
         }

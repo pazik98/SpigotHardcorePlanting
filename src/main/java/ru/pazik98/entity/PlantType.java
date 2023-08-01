@@ -4,7 +4,7 @@ import org.bukkit.Material;
 
 public enum PlantType {
 
-    WHEAT (Material.WHEAT, Material.WHEAT_SEEDS, 2, 7, 8, 10,
+    WHEAT (Material.WHEAT, Material.WHEAT_SEEDS, 2, 8, 8, 10,
             15, 38, 17, 3, 5, 3, 12000,
             1, 10, 10, 1, 5, 0, 10);
 
