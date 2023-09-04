@@ -51,6 +51,11 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
+        <repository>
+            <id>hibernate-repo</id>
+            <url>https://mvnrepository.com/artifact/org.hibernate/hibernate-core</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -60,6 +65,15 @@
             <version>1.19.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.3.0.Final</version>
+        </dependency>
+
     </dependencies>
+
+
 
 </project>

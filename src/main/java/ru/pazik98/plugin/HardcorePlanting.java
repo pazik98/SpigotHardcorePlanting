@@ -3,6 +3,8 @@ package ru.pazik98.plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.hibernate.SessionFactory;
+import ru.pazik98.db.HibernateSessionFactory;
 import ru.pazik98.listener.PlayerListener;
 import ru.pazik98.listener.WorldListener;
 
@@ -27,5 +29,9 @@ public class HardcorePlanting extends JavaPlugin {
 
     public static HardcorePlanting getInstance() {
         return instance;
+    }
+
+    private void initDatabse() {
+
     }
 }
