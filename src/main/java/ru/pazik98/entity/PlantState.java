@@ -43,6 +43,20 @@ public class PlantState {
         this.isDead = false;
     }
 
+    public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick, long updatesTickNumber,
+                      int growthPhase, float maturity, float productivity, float decay) {
+        this.plantType = plantType;
+        this.plantingTick = plantingTick;
+        this.updatesTickNumber = updatesTickNumber;
+        this.growthPhase = growthPhase;
+        this.maturity = maturity;
+        this.productivity = productivity;
+        this.decay = decay;
+        this.soil = soil;
+        this.location = location;
+        this.isDead = false;
+    }
+
     public void update() {
         // calculating deviation
         float humidityDiff = getPlantType().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
