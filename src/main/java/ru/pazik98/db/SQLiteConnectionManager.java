@@ -9,7 +9,7 @@ import java.sql.Statement;
 
 public class SQLiteConnectionManager {
 
-    private final String URL = "jdbc:sqlite:" + HardcorePlanting.getInstance().getDataFolder().getAbsolutePath() + "\\database.db";
+    private final String URL = "jdbc:sqlite:" + HardcorePlanting.getInstance().getDataFolder().getAbsolutePath() + "\\HardcorePlanting.db";
 
     private final String SOIL_TABLE_SQL = "CREATE TABLE IF NOT EXISTS`soil` (" +
             "`id`INTEGER NOT NULL UNIQUE," +
