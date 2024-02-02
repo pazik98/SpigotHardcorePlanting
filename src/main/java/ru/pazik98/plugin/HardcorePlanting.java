@@ -6,7 +6,6 @@ import ru.pazik98.listener.PlayerListener;
 import ru.pazik98.listener.WorldListener;
 
 import java.sql.*;
-import java.util.logging.Level;
 
 public class HardcorePlanting extends JavaPlugin {
 
