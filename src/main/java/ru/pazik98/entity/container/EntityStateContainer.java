@@ -27,7 +27,7 @@ public class EntityStateContainer {
     private final Logger logger = HardcorePlanting.getInstance().getLogger();
 
     // TEMPORARY
-    private final float tickFrequency = 0.5f;
+    private final float tickFrequency = (float) 1 / 30;
 
     private final PlantStateDataRepository plantRepository = NDatabasePlantRepository.getInstance();
     private final SoilStateDataRepository soilRepository = NDatabaseSoilRepository.getInstance();
@@ -59,8 +59,8 @@ public class EntityStateContainer {
     }
 
     public Soil getSoil(Location location) {
+        logger.warning("all soils" + soils);
         Optional<Soil> matchedSoil = soils.stream()
-                .parallel()
                 .filter(x -> x.getLocation().equals(location))
                 .findFirst();
         return matchedSoil.orElse(null);
@@ -75,7 +75,8 @@ public class EntityStateContainer {
                 .build();
         soil.setPlant(plant);
         plants.add(plant);
-        plantRepository.save(new PlantStateData(plant));
+        save(plant);
+        save(soil);
         logger.warning("Created plant: " + plant);
         return plant;
     }
@@ -93,9 +94,8 @@ public class EntityStateContainer {
     }
 
     public Plant getPlant(Location location) {
-        logger.warning(plants.toString());
+        logger.warning("all plants" + plants.toString());
         Optional<Plant> matchedPlant = plants.stream()
-                .parallel()
                 .filter(x -> x.getLocation().equals(location))
                 .findFirst();
         return matchedPlant.orElse(null);
@@ -112,9 +112,14 @@ public class EntityStateContainer {
                 .filter(Objects::nonNull)
                 .toList();
 
+        soilStates.forEach(x -> x.getPlant().setSoil(x));
+
         soils.addAll(soilStates);
         plants.addAll(plantStates);
+    }
 
+    public void load(Set<Chunk> chunks) {
+        chunks.forEach(this::load);
     }
 
     public void unload(Chunk chunk) {
@@ -140,6 +145,11 @@ public class EntityStateContainer {
 
     private void save(Plant plant) {
         plantRepository.save(new PlantStateData((PlantState) plant));
+    }
+
+    public void saveAll() {
+        soils.forEach(this::save);
+        plants.forEach(this::save);
     }
 
     private void delete(Soil soil) {

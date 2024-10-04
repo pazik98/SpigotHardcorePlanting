@@ -8,6 +8,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.entity.plant.PlantType;
 
@@ -44,5 +46,15 @@ public class WorldListener implements Listener {
         if (e.getBlock().getBlockData().getMaterial().equals(Material.FARMLAND)) {
             container.destroySoil(e.getBlock().getLocation());
         }
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent e) {
+        EntityStateContainer.getInstance().load(e.getChunk());
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent e) {
+        EntityStateContainer.getInstance().unload(e.getChunk());
     }
 }

@@ -100,7 +100,6 @@ public class PlantState implements Plant {
                 if (soil.getFertilizer() >= plantType.getMaturationFertilizerCost()) matureChanceFertilizerBonus = GrowthBonus.MATURITY_SPEED.getFertilizer();
 
                 float matureChance = (matureChanceTemperatureBonus + matureChanceFertilizerBonus) / plantType.getMaturationTicksCost();
-                logger.warning("mature chance " + matureChance);
                 if (Util.getRandom(matureChance)) {
                     mature();
                 }
