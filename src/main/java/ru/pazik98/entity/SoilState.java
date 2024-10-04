@@ -1,95 +1,61 @@
 package ru.pazik98.entity;
 
+import lombok.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import ru.pazik98.db.repository.data.SoilStateData;
 
-public class SoilState {
+@Getter
+@Builder
+@AllArgsConstructor
+@ToString
+public class SoilState implements Soil {
 
     private float humidity;
     private float fertilizer;
     private float temperature;
     private float water;
-    private float waterCapacity;
+    private float waterCapacity = 1000f;
     private Location location;
 
-    private PlantState plant;
+    @Setter
+    private Plant plant;
 
-    public SoilState(float humidity, float temperature, Location location) {
-        this.humidity = humidity;
-        this.temperature = temperature;
-        this.fertilizer = 0f;;
-        this.waterCapacity = 1000f;
-        this.water = waterCapacity * humidity;
-        this.location = location;
-        this.plant = null;
+    public SoilState(SoilStateData soilStateData) {
+        this.humidity = soilStateData.getHumidity();
+        this.fertilizer = soilStateData.getFertilizer();
+        this.temperature = soilStateData.getTemperature();
+        this.water = soilStateData.getWater();
+        this.location = new Location(
+                Bukkit.getWorld(soilStateData.getWorldUID()),
+                soilStateData.getX(),
+                soilStateData.getY(),
+                soilStateData.getZ()
+        );
+        if (soilStateData.getPlant() != null) this.plant = new PlantState(soilStateData.getPlant());
     }
 
-    public SoilState(float humidity, float fertilizer, float temperature, float water, float waterCapacity, Location location) {
-        this.humidity = humidity;
-        this.fertilizer = fertilizer;
-        this.temperature = temperature;
-        this.water = water;
-        this.waterCapacity = waterCapacity;
-        this.location = location;
-        this.plant = null;
-    }
-
-    public float getHumidity() {
-        return humidity;
-    }
-
-    public float getFertilizer() {
-        return fertilizer;
-    }
-
-    public float getTemperature() {
-        return temperature;
-    }
-
+    @Override
     public void increaseFertilizer(float count) {
         fertilizer += count;
     }
 
+    @Override
     public void decreaseFertilizer(float count) {
         fertilizer -= count;
     }
 
+    @Override
     public void increaseWater(float count) {
         water += count;
     }
 
+    @Override
     public void decreaseWater(float count) {
         water -= count;
     }
 
-    public float getWater() {
-        return water;
-    }
-
-    public float getWaterCapacity() {
-        return waterCapacity;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public PlantState getPlant() {
-        return plant;
-    }
-
-    public void setPlant(PlantState plant) {
-        this.plant = plant;
-    }
-
-    @Override
-    public String toString() {
-        return "SoilState{" +
-                "humidity=" + humidity +
-                ", fertilizer=" + fertilizer +
-                ", temperature=" + temperature +
-                ", water=" + water + "/" + waterCapacity +
-                ", location=" + location +
-                ", plant=" + plant +
-                '}';
+    public static SoilState from(SoilStateData soilStateData) {
+        return new SoilState(soilStateData);
     }
 }

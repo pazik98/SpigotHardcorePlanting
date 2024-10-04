@@ -1,11 +1,12 @@
 package ru.pazik98.entity;
 
+import lombok.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
+import ru.pazik98.db.repository.data.PlantStateData;
 import ru.pazik98.util.Convert;
 import ru.pazik98.util.GrowthBonus;
 import ru.pazik98.util.Util;
@@ -14,63 +15,61 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class PlantState {
+@Builder
+@AllArgsConstructor
+@ToString
+public class PlantState implements Plant {
 
+    @Getter
     private PlantType plantType;
+
+    @Getter
     private long plantingTick;
+
+    @Getter
     private long updatesTickNumber;
+
+    @Getter
     private int growthPhase;
+
+    @Getter
     private float maturity;
+
+    @Getter
     private float productivity;
+
+    @Getter
     private float decay;
+
+    @Getter
     private Location location;
 
-    private SoilState soil;
+    @Getter
+    @Setter
+    @ToString.Exclude
+    private Soil soil;
+
     private boolean isDead;
 
     private final Logger logger = Bukkit.getLogger();
 
-    public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick) {
-        this.plantType = plantType;
-        this.plantingTick = plantingTick;
-        this.updatesTickNumber = 0;
-        this.growthPhase = 0;
-        this.maturity = 0f;
-        this.productivity = 0f;
-        this.decay = 0f;
-        this.soil = soil;
-        this.location = location;
-        this.isDead = false;
+    public PlantState(PlantStateData plantStateData) {
+        this.plantType = PlantType.getPlantType(Material.getMaterial(plantStateData.getSeedMaterial()));
+        this.plantingTick = plantStateData.getPlantingTick();
+        this.updatesTickNumber = plantStateData.getUpdateTicks();
+        this.growthPhase = plantStateData.getGrowthPhase();
+        this.maturity = plantStateData.getMaturity();
+        this.productivity = plantStateData.getProductivity();
+        this.decay = plantStateData.getDecay();
+        this.location = new Location(
+                Bukkit.getWorld(plantStateData.getWorldUID()),
+                plantStateData.getX(),
+                plantStateData.getY(),
+                plantStateData.getZ()
+        );
     }
 
-    public PlantState(PlantType plantType, SoilState soil, Location location, long plantingTick, long updatesTickNumber,
-                      int growthPhase, float maturity, float productivity, float decay) {
-        this.plantType = plantType;
-        this.plantingTick = plantingTick;
-        this.updatesTickNumber = updatesTickNumber;
-        this.growthPhase = growthPhase;
-        this.maturity = maturity;
-        this.productivity = productivity;
-        this.decay = decay;
-        this.soil = soil;
-        this.location = location;
-        this.isDead = false;
-    }
-
-    public PlantState(PlantType plantType, Location location, long plantingTick, long updatesTickNumber,
-                      int growthPhase, float maturity, float productivity, float decay) {
-        this.plantType = plantType;
-        this.plantingTick = plantingTick;
-        this.updatesTickNumber = updatesTickNumber;
-        this.growthPhase = growthPhase;
-        this.maturity = maturity;
-        this.productivity = productivity;
-        this.decay = decay;
-        this.soil = null;
-        this.location = location;
-        this.isDead = false;
-    }
-
+    @Override
     public void update() {
         // calculating deviation
         float humidityDiff = getPlantType().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
@@ -136,7 +135,8 @@ public class PlantState {
         }
     }
 
-    private void grow() {
+    @Override
+    public void grow() {
         // Check for needed resources
         if (getSoil().getWater() < getPlantType().getGrowthWaterCost()) {
             return;
@@ -159,11 +159,8 @@ public class PlantState {
         logger.warning("growing " + this);
     }
 
-    private void die() {
-        isDead = true;
-    }
-
-    private void mature() {
+    @Override
+    public void mature() {
         // check for needed resources
         if (soil.getWater() < plantType.getMaturationWaterCost()) {
             return;
@@ -185,13 +182,19 @@ public class PlantState {
         float humidityDiff = soil.getHumidity() - plantType.getExpectedHumidity();
         float productivityHumidityBonus = GrowthBonus.CROP_AMOUNT.getHumidityExcess() * humidityDiff;
         if (humidityDiff < 0) productivityHumidityBonus = GrowthBonus.CROP_AMOUNT.getHumidityDeficit() * humidityDiff;
-        productivity += ((float)(growthPhase + 1 - plantType.getGrowthStageCount()) / plantType.getMaturationStageCount() *
+        productivity += ((float) (growthPhase + 1 - plantType.getGrowthStageCount()) / plantType.getMaturationStageCount() *
                 (productivityHumidityBonus + productivityFertilizerBonus));
 
         logger.warning("maturing " + this);
     }
 
-    private void decay() {
+    @Override
+    public void die() {
+        isDead = true;
+    }
+
+    @Override
+    public void decay() {
         // consume resources
         if (soil.getWater() >= plantType.getDecayWaterCost()) {
             soil.decreaseWater(plantType.getDecayWaterCost());
@@ -204,7 +207,7 @@ public class PlantState {
         growthPhase++;
         decay = (float) (growthPhase + 1 - plantType.getGrowthStageCount() - plantType.getMaturationStageCount()) / plantType.getDecayStageCount();
 
-        float loss = (float) (( productivity / (plantType.getDecayStageCount() - (growthPhase + 1 - plantType.getGrowthStageCount() - plantType.getMaturationStageCount()))) - 0.01);
+        float loss = (float) ((productivity / (plantType.getDecayStageCount() - (growthPhase + 1 - plantType.getGrowthStageCount() - plantType.getMaturationStageCount()))) - 0.01);
         if (loss > productivity) productivity = 0;
         else productivity -= loss;
 
@@ -213,6 +216,7 @@ public class PlantState {
         logger.warning("decaying " + this);
     }
 
+    @Override
     public void incrementUpdatesTickNumber() {
         updatesTickNumber++;
     }
@@ -221,10 +225,7 @@ public class PlantState {
         updatesTickNumber += ticks;
     }
 
-    public long getUpdatesTickNumber() {
-        return updatesTickNumber;
-    }
-
+    @Override
     public float getHappiness() {
         float happiness = 100.0f;
         // light reason
@@ -237,14 +238,7 @@ public class PlantState {
         return (happiness + water + temperature) / 3;
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public SoilState getSoil() {
-        return soil;
-    }
-
+    @Override
     public List<ItemStack> getCrops() {
         List<ItemStack> harvest = new ArrayList<>();
         int seedCount = Util.getRandomRound(plantType.getSeedCount() * productivity);
@@ -256,50 +250,12 @@ public class PlantState {
         return harvest;
     }
 
-    public PlantType getPlantType() {
-        return plantType;
-    }
-
-    public long getPlantingTick() {
-        return plantingTick;
-    }
-
-    public int getGrowthPhase() {
-        return growthPhase;
-    }
-
-    public float getMaturity() {
-        return maturity;
-    }
-
-    public float getProductivity() {
-        return productivity;
-    }
-
-    public float getDecay() {
-        return decay;
-    }
-
-    public void setSoil(SoilState soil) {
-        this.soil = soil;
-    }
-
+    @Override
     public boolean isDead() {
         return isDead;
     }
 
-    @Override
-    public String toString() {
-        return "PlantState{" +
-                "plantType=" + plantType +
-                ", plantingTick=" + plantingTick +
-                ", growthPhase=" + growthPhase +
-                ", maturity=" + maturity +
-                ", productivity=" + productivity +
-                ", decay=" + decay +
-                ", location=" + location +
-                ", soil=" + soil +
-                ", isDead=" + isDead +
-                '}';
+    public static PlantState from(PlantStateData plantStateData) {
+        return new PlantState(plantStateData);
     }
 }

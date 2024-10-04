@@ -4,7 +4,7 @@ import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.api.query.NQuery;
 import com.nivixx.ndatabase.api.repository.Repository;
 import org.bukkit.Chunk;
-import ru.pazik98.db.PlantStateData;
+import ru.pazik98.db.repository.data.PlantStateData;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +15,7 @@ public class NDatabasePlantRepository implements PlantStateDataRepository {
 
     private NDatabasePlantRepository() { }
     @Override
-    public List<PlantStateData> find(Chunk chunk) {
+    public List<PlantStateData> findAll(Chunk chunk) {
         int xMin = chunk.getX() * 16;
         int xMax = xMin + 16;
         int zMin = chunk.getZ() * 16;
@@ -29,7 +29,6 @@ public class NDatabasePlantRepository implements PlantStateDataRepository {
 
     @Override
     public void save(PlantStateData plantStateData) {
-        plantStateData.setKey(plantStateData.hashCode());
         repository.upsert(plantStateData);
     }
 

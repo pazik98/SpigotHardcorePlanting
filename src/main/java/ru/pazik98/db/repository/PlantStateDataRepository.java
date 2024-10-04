@@ -1,15 +1,15 @@
 package ru.pazik98.db.repository;
 
 import org.bukkit.Chunk;
-import ru.pazik98.db.PlantStateData;
+import ru.pazik98.db.repository.data.PlantStateData;
 
 import java.util.List;
 
 public interface PlantStateDataRepository {
 
-    List<PlantStateData> find(Chunk chunk);
+    List<PlantStateData> findAll(Chunk chunk);
 
-    void save(PlantStateData plantState);
+    void save(PlantStateData plantStateData);
 
-    void delete(PlantStateData plantState);
+    void delete(PlantStateData plantStateData);
 }
