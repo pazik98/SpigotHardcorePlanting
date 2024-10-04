@@ -1,8 +1,7 @@
-package ru.pazik98.entity;
+package ru.pazik98.entity.plant;
 
-import org.bukkit.block.data.Ageable;
 import org.bukkit.inventory.ItemStack;
-import ru.pazik98.util.GrowthBonus;
+import ru.pazik98.entity.soil.Soil;
 
 import java.util.List;
 

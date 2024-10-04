@@ -1,4 +1,4 @@
-package ru.pazik98.entity;
+package ru.pazik98.entity.container;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -10,12 +10,24 @@ import ru.pazik98.db.repository.SoilStateDataRepository;
 import ru.pazik98.db.repository.NDatabaseSoilRepository;
 import ru.pazik98.db.repository.data.PlantStateData;
 import ru.pazik98.db.repository.data.SoilStateData;
+import ru.pazik98.entity.plant.Plant;
+import ru.pazik98.entity.plant.PlantState;
+import ru.pazik98.entity.plant.PlantType;
+import ru.pazik98.entity.soil.Soil;
+import ru.pazik98.entity.soil.SoilState;
+import ru.pazik98.plugin.HardcorePlanting;
+import ru.pazik98.util.Util;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class EntityStateContainer {
     private static EntityStateContainer instance;
+    private final Logger logger = HardcorePlanting.getInstance().getLogger();
+
+    // TEMPORARY
+    private final float tickFrequency = 0.5f;
 
     private final PlantStateDataRepository plantRepository = NDatabasePlantRepository.getInstance();
     private final SoilStateDataRepository soilRepository = NDatabaseSoilRepository.getInstance();
@@ -27,10 +39,13 @@ public class EntityStateContainer {
         SoilState soil = SoilState.builder()
                 .humidity((float) block.getHumidity())
                 .temperature((float) block.getTemperature())
+                .waterCapacity(1000)
+                .water(500)
                 .location(block.getLocation())
                 .build();
         soils.add(soil);
         save(soil);
+        logger.warning("Created soil: " + soil);
         return soil;
     }
 
@@ -38,7 +53,9 @@ public class EntityStateContainer {
         Soil soil = getSoil(location);
         soils.remove(soil);
         delete(soil);
-        destroyPlant(soil.getPlant());
+        logger.warning("Destroyed soil: " + soil);
+        if (soil.getPlant() != null) destroyPlant(soil.getPlant());
+
     }
 
     public Soil getSoil(Location location) {
@@ -59,12 +76,14 @@ public class EntityStateContainer {
         soil.setPlant(plant);
         plants.add(plant);
         plantRepository.save(new PlantStateData(plant));
+        logger.warning("Created plant: " + plant);
         return plant;
     }
 
     public void destroyPlant(Location location) {
         Plant plant = getPlant(location);
         destroyPlant(plant);
+        logger.warning("Destroyed plant: " + plant);
     }
 
     private void destroyPlant(Plant plant) {
@@ -74,6 +93,7 @@ public class EntityStateContainer {
     }
 
     public Plant getPlant(Location location) {
+        logger.warning(plants.toString());
         Optional<Plant> matchedPlant = plants.stream()
                 .parallel()
                 .filter(x -> x.getLocation().equals(location))
@@ -123,11 +143,11 @@ public class EntityStateContainer {
     }
 
     private void delete(Soil soil) {
-        soilRepository.delete((SoilStateData) soil);
+        soilRepository.delete(new SoilStateData((SoilState) soil));
     }
 
     private void delete(Plant plant) {
-        plantRepository.delete((PlantStateData) plant);
+        plantRepository.delete(new PlantStateData((PlantState) plant));
     }
 
     public boolean isSoil(Location location) {
@@ -136,6 +156,27 @@ public class EntityStateContainer {
 
     public boolean isPlant(Location location) {
         return getPlant(location) != null;
+    }
+
+    public void update() {
+        plants.forEach(this::update);
+    }
+
+    private void update(Plant plant) {
+        if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
+            destroyPlant(plant.getLocation());
+            return;
+        }
+        // Check for death
+        if (plant.isDead()) {
+            destroyPlant(plant.getLocation());
+            plant.getLocation().getBlock().setType(Material.DEAD_BUSH);
+            return;
+        }
+        plant.incrementUpdatesTickNumber();
+        if (Util.getRandom(tickFrequency)) {
+            plant.update();
+        }
     }
 
     public static EntityStateContainer getInstance() {

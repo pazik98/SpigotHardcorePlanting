@@ -5,11 +5,8 @@ import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.model.NEntity;
 import lombok.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import ru.pazik98.entity.Plant;
-import ru.pazik98.entity.PlantState;
-import ru.pazik98.entity.SoilState;
+import ru.pazik98.entity.plant.PlantState;
+import ru.pazik98.entity.soil.SoilState;
 
 import java.util.UUID;
 

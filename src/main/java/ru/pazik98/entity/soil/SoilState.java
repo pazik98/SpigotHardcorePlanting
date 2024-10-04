@@ -1,9 +1,11 @@
-package ru.pazik98.entity;
+package ru.pazik98.entity.soil;
 
 import lombok.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import ru.pazik98.db.repository.data.SoilStateData;
+import ru.pazik98.entity.plant.Plant;
+import ru.pazik98.entity.plant.PlantState;
 
 @Getter
 @Builder

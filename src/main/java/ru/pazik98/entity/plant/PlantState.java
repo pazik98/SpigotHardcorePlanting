@@ -1,4 +1,4 @@
-package ru.pazik98.entity;
+package ru.pazik98.entity.plant;
 
 import lombok.*;
 import org.bukkit.Bukkit;
@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.inventory.ItemStack;
 import ru.pazik98.db.repository.data.PlantStateData;
+import ru.pazik98.entity.soil.Soil;
 import ru.pazik98.util.Convert;
 import ru.pazik98.util.GrowthBonus;
 import ru.pazik98.util.Util;
@@ -93,12 +94,13 @@ public class PlantState implements Plant {
             } else {
                 // calculating mature chance bonuses
                 float matureChanceTemperatureBonus = GrowthBonus.MATURITY_SPEED.getTemperatureExcess() * temperatureDiff;
-                if (temperatureDiff < 0) matureChanceTemperatureBonus = GrowthBonus.MATURITY_SPEED.getTemperatureExcess() * temperatureDiff;
+                if (temperatureDiff < 0) matureChanceTemperatureBonus = GrowthBonus.MATURITY_SPEED.getTemperatureDeficit() * temperatureDiff;
 
                 float matureChanceFertilizerBonus = 0;
                 if (soil.getFertilizer() >= plantType.getMaturationFertilizerCost()) matureChanceFertilizerBonus = GrowthBonus.MATURITY_SPEED.getFertilizer();
 
                 float matureChance = (matureChanceTemperatureBonus + matureChanceFertilizerBonus) / plantType.getMaturationTicksCost();
+                logger.warning("mature chance " + matureChance);
                 if (Util.getRandom(matureChance)) {
                     mature();
                 }

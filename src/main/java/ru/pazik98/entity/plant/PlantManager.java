@@ -1,4 +1,4 @@
-package ru.pazik98.entity;
+package ru.pazik98.entity.plant;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

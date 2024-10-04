@@ -1,17 +1,15 @@
 package ru.pazik98.plugin;
 
-import org.bukkit.Bukkit;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.pazik98.db.SQLiteConnectionManager;
-import ru.pazik98.entity.PlantState;
-import ru.pazik98.entity.PlantType;
+import org.bukkit.scheduler.BukkitRunnable;
+import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.listener.PlayerListener;
 import ru.pazik98.listener.WorldListener;
 
-import java.sql.*;
-
 public class HardcorePlanting extends JavaPlugin {
 
+    @Getter
     private static HardcorePlanting instance;
 
     public HardcorePlanting() {
@@ -22,11 +20,9 @@ public class HardcorePlanting extends JavaPlugin {
     public void onEnable() {
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new WorldListener(), this);
-        initConfig();
-        initDatabase();
 
-        System.out.println(SQLiteConnectionManager.getInstance().getSoils(Bukkit.getWorlds().get(0).getChunkAt(0,0)));
-        System.out.println(SQLiteConnectionManager.getInstance().getPlants(Bukkit.getWorlds().get(0).getChunkAt(0,0)));
+        initConfig();
+        initEntityContainer();
     }
 
     @Override
@@ -34,22 +30,16 @@ public class HardcorePlanting extends JavaPlugin {
 
     }
 
-    public static HardcorePlanting getInstance() {
-        return instance;
-    }
-
     public void initConfig() {
         this.saveConfig();
     }
 
-    private void initDatabase() {
-        SQLiteConnectionManager connectionManager = SQLiteConnectionManager.getInstance();
-        try {
-            connectionManager.createTables();
-        } catch (SQLException e) {
-            getLogger().warning("Cannot create database!");
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+    public void initEntityContainer() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                EntityStateContainer.getInstance().update();
+            }
+        }.runTaskTimer(HardcorePlanting.getInstance(), 1, 0);
     }
 }

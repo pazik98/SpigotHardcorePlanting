@@ -1,6 +1,7 @@
-package ru.pazik98.entity;
+package ru.pazik98.entity.soil;
 
 import org.bukkit.Location;
+import ru.pazik98.entity.plant.Plant;
 
 public interface Soil {
     float getHumidity();

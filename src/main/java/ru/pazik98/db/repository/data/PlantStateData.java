@@ -5,8 +5,7 @@ import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.model.NEntity;
 import lombok.*;
-import ru.pazik98.entity.PlantState;
-import ru.pazik98.entity.SoilState;
+import ru.pazik98.entity.plant.PlantState;
 
 import java.util.UUID;
 
