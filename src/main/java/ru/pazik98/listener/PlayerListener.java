@@ -14,6 +14,7 @@ import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.entity.plant.PlantState;
 import ru.pazik98.entity.plant.PlantType;
 import ru.pazik98.entity.soil.SoilState;
+import ru.pazik98.event.handler.PlayerActionHandler;
 import ru.pazik98.util.Convert;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class PlayerListener implements Listener {
 
     private final Logger logger = Bukkit.getLogger();
     private final EntityStateContainer container = EntityStateContainer.getInstance();
+    private final PlayerActionHandler handler = new PlayerActionHandler();
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
@@ -31,62 +33,24 @@ public class PlayerListener implements Listener {
             Block block = e.getClickedBlock();
 
             if (isHoe(material)) {
-                // Check for making farmland
-                if (isLand(block.getType())) container.createSoil(e.getClickedBlock());
+                handler.makeFarmland(e);
 
-                // Check for harvesting
-                if (isPlant(block.getLocation())) {
-                    List<ItemStack> harvest = container.getPlant(block.getLocation()).getCrops();
-                    for (ItemStack itemStack : harvest) {
-                        Item item = block.getLocation().getWorld().dropItem(block.getLocation(), itemStack);
-                        item.setPickupDelay(0);
-                    }
-                    container.destroyPlant(block.getLocation());
-                    block.setType(Material.AIR);
-                    logger.warning("Harvested " + block.getType() + " at " + block.getLocation());
+                if (isSeedling(block.getLocation())) {
+                    handler.harvestPlant(e);
                 }
             }
 
-            // Check for planting
             if (PlantType.getPlantType(material) != null && block.getType().equals(Material.FARMLAND)) {
-                logger.warning("Planting on " + block.getLocation());
-                Location location = block.getLocation();
-                container.createPlant(
-                        container.getSoil(location),
-                        new Location(location.getWorld(), location.getX(), location.getY() + 1, location.getBlockZ()),
-                        material
-                );
+                handler.plantSeedling(e);
             }
 
-            // Check for research
             if (material.equals(Material.PAPER)) {
-                // Click to plant
                 if (PlantType.isPlant(block.getType())) {
-                    PlantState plant = (PlantState) container.getPlant(block.getLocation());
-                    if (plant == null) return;
-                    StringBuilder message = new StringBuilder();
-                    message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
-                    message.append(" Happiness: ").append(Math.round(plant.getHappiness())).append("%\n");
-                    message.append(" Growth time: ").append(Convert.ticksToTime(plant.getUpdatesTickNumber())).append("\n");
-                    message.append(" Growth phase: ").append(plant.getGrowthPhase()).append("\n");
-                    message.append(" Maturity: ").append(plant.getMaturity() * 100).append("%\n");
-                    message.append(" Productivity: ").append(plant.getProductivity() * 100).append("%\n");
-                    message.append(" Decaying: ").append(plant.getDecay() * 100).append("%\n");
-                    message.append(" ------- ");
-                    e.getPlayer().sendMessage(message.toString());
+                    handler.showPlantInfo(e);
                 }
-                // Click to farmland
+
                 if (block.getType().equals(Material.FARMLAND)) {
-                    SoilState soil = (SoilState) container.getSoil(block.getLocation());
-                    if (soil == null) return;
-                    StringBuilder message = new StringBuilder();
-                    message.append(" --- SOIL ---\n");
-                    message.append(" Humidity: ").append(Convert.humidityToPercent(soil.getHumidity())).append("%\n");
-                    message.append(" Temperature: ").append(Convert.temperatureToDegrees(soil.getTemperature())).append("°с\n");
-                    message.append(" Water: ").append(soil.getWater()).append("/").append(soil.getWaterCapacity()).append("mB\n");
-                    message.append(" Fertilizer: ").append(soil.getFertilizer()).append("g\n");
-                    message.append(" ------- ");
-                    e.getPlayer().sendMessage(message.toString());
+                    handler.showSoilInfo(e);
                 }
             }
         }
@@ -101,7 +65,7 @@ public class PlayerListener implements Listener {
         return m.equals(Material.GRASS_BLOCK) || m.equals(Material.DIRT_PATH) || m.equals(Material.DIRT);
     }
 
-    private boolean isPlant(Location location) {
+    private boolean isSeedling(Location location) {
         return container.getPlant(location) != null;
     }
 }
