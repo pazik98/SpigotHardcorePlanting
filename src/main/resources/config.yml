@@ -1,0 +1,6 @@
+### DATABASE ###
+# Database config placed at */plugins/NDatabase/config.yml
+
+# Plants update frequency will be 1/plants-update-ticks
+# Measured in ticks
+plants-update-ticks: 600

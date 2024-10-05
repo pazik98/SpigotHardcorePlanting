@@ -4,6 +4,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import ru.pazik98.db.repository.NDatabasePlantRepository;
 import ru.pazik98.db.repository.PlantStateDataRepository;
 import ru.pazik98.db.repository.SoilStateDataRepository;
@@ -25,9 +26,7 @@ import java.util.stream.Collectors;
 public class EntityStateContainer {
     private static EntityStateContainer instance;
     private final Logger logger = HardcorePlanting.getInstance().getLogger();
-
-    // TEMPORARY
-    private final float tickFrequency = (float) 1 / 30;
+    private final FileConfiguration config = HardcorePlanting.getInstance().getConfig();
 
     private final PlantStateDataRepository plantRepository = NDatabasePlantRepository.getInstance();
     private final SoilStateDataRepository soilRepository = NDatabaseSoilRepository.getInstance();
@@ -112,7 +111,9 @@ public class EntityStateContainer {
                 .filter(Objects::nonNull)
                 .toList();
 
-        soilStates.forEach(x -> x.getPlant().setSoil(x));
+        soilStates.stream()
+                .filter(x -> x.getPlant() != null)
+                .forEach(x -> x.getPlant().setSoil(x));
 
         soils.addAll(soilStates);
         plants.addAll(plantStates);
@@ -169,7 +170,9 @@ public class EntityStateContainer {
     }
 
     public void update() {
-        plants.forEach(this::update);
+        plants.stream()
+                .filter(Objects::nonNull)
+                .forEach(this::update);
     }
 
     private void update(Plant plant) {
@@ -184,7 +187,7 @@ public class EntityStateContainer {
             return;
         }
         plant.incrementUpdatesTickNumber();
-        if (Util.getRandom(tickFrequency)) {
+        if (Util.getRandom((float) (1 / config.getDouble("plants-update-ticks")))) {
             plant.update();
         }
     }

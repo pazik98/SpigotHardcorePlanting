@@ -55,7 +55,7 @@ public class PlayerActionHandler {
         PlantState plant = (PlantState) container.getPlant(e.getClickedBlock().getLocation());
         if (plant == null) return;
         StringBuilder message = new StringBuilder();
-        message.append("_______________________");
+        message.append("_______________________\n");
         message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
         message.append(" Happiness: ").append(Math.round(plant.getHappiness())).append("%\n");
         message.append(" Growth time: ").append(Convert.ticksToTime(plant.getUpdatesTickNumber())).append("\n");
@@ -63,7 +63,7 @@ public class PlayerActionHandler {
         message.append(" Maturity: ").append(plant.getMaturity() * 100).append("%\n");
         message.append(" Productivity: ").append(plant.getProductivity() * 100).append("%\n");
         message.append(" Decaying: ").append(plant.getDecay() * 100).append("%\n");
-        message.append("_______________________");
+        message.append("_______________________\n");
         e.getPlayer().sendMessage(message.toString());
     }
 
@@ -71,13 +71,13 @@ public class PlayerActionHandler {
         SoilState soil = (SoilState) container.getSoil(e.getClickedBlock().getLocation());
         if (soil == null) return;
         StringBuilder message = new StringBuilder();
-        message.append("_______________________");
+        message.append("_______________________\n");
         message.append(" --- SOIL ---\n");
         message.append(" Humidity: ").append(Convert.humidityToPercent(soil.getHumidity())).append("%\n");
         message.append(" Temperature: ").append(Convert.temperatureToDegrees(soil.getTemperature())).append("°с\n");
         message.append(" Water: ").append(soil.getWater()).append("/").append(soil.getWaterCapacity()).append("mB\n");
         message.append(" Fertilizer: ").append(soil.getFertilizer()).append("g\n");
-        message.append("_______________________");
+        message.append("_______________________\n");
         e.getPlayer().sendMessage(message.toString());
     }
 

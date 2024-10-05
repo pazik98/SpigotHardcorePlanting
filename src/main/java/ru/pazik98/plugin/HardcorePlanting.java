@@ -39,7 +39,7 @@ public class HardcorePlanting extends JavaPlugin {
     }
 
     public void initConfig() {
-        this.saveConfig();
+        this.saveDefaultConfig();
     }
 
     public void initEntityContainer() {
