@@ -53,11 +53,7 @@ public class HardcorePlanting extends JavaPlugin {
 
     public void updateLoadedChunks() {
         Set<Chunk> chunks = new HashSet<>();
-        Bukkit.getWorlds()
-                .forEach(x -> chunks.addAll(
-                        Arrays.stream(x.getLoadedChunks()).toList())
-                );
+        Bukkit.getWorlds().forEach(x -> chunks.addAll(Arrays.stream(x.getLoadedChunks()).toList()));
         EntityStateContainer.getInstance().load(chunks);
-
     }
 }

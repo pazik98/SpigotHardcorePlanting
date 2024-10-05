@@ -1,5 +1,7 @@
 name: HardcorePlanting
 version: '${project.version}'
+description: "This plugin will make your farming more unusual!"
 main: ru.pazik98.plugin.HardcorePlanting
 api-version: 1.13
 author: pazik98
+depend: [NDatabase]
