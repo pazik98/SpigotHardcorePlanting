@@ -19,6 +19,7 @@ import ru.pazik98.plugin.HardcorePlanting;
 import ru.pazik98.util.Util;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -32,8 +33,8 @@ public class EntityStateContainer {
     private final PlantStateDataRepository plantRepository = NDatabasePlantRepository.getInstance();
     private final SoilStateDataRepository soilRepository = NDatabaseSoilRepository.getInstance();
 
-    private final HashSet<Soil> soils = new HashSet<>();
-    private final HashSet<Plant> plants = new HashSet<>();
+    private final ConcurrentHashMap<Location, Soil> soils = new ConcurrentHashMap<>();
+    private final  ConcurrentHashMap<Location, Plant> plants = new  ConcurrentHashMap<>();
 
     public Soil createSoil(Block block) {
         SoilState soil = SoilState.builder()
@@ -43,7 +44,7 @@ public class EntityStateContainer {
                 .water(500)
                 .location(block.getLocation())
                 .build();
-        soils.add(soil);
+        soils.put(block.getLocation(), soil);
         save(soil);
         logger.warning("Created soil: " + soil);
         return soil;
@@ -60,7 +61,7 @@ public class EntityStateContainer {
 
     public Soil getSoil(Location location) {
         logger.warning("all soils" + soils);
-        Optional<Soil> matchedSoil = soils.stream()
+        Optional<Soil> matchedSoil = soils.values().stream()
                 .filter(x -> x.getLocation().equals(location))
                 .findFirst();
         return matchedSoil.orElse(null);
@@ -74,7 +75,7 @@ public class EntityStateContainer {
                 .soil(soil)
                 .build();
         soil.setPlant(plant);
-        plants.add(plant);
+        plants.put(location, plant);
         save(plant);
         save(soil);
         logger.warning("Created plant: " + plant);
@@ -95,7 +96,7 @@ public class EntityStateContainer {
 
     public Plant getPlant(Location location) {
         logger.warning("all plants" + plants.toString());
-        Optional<Plant> matchedPlant = plants.stream()
+        Optional<Plant> matchedPlant = plants.values().stream()
                 .filter(x -> x.getLocation().equals(location))
                 .findFirst();
         return matchedPlant.orElse(null);
@@ -114,8 +115,8 @@ public class EntityStateContainer {
 
         soilStates.forEach(x -> x.getPlant().setSoil(x));
 
-        soils.addAll(soilStates);
-        plants.addAll(plantStates);
+        soilStates.forEach(x -> soils.put(x.getLocation(), x));
+        plantStates.forEach(x -> plants.put(x.getLocation(), x));
     }
 
     public void load(Set<Chunk> chunks) {
@@ -123,7 +124,7 @@ public class EntityStateContainer {
     }
 
     public void unload(Chunk chunk) {
-        Set<Soil> soilsAtChunk = soils.stream()
+        Set<Soil> soilsAtChunk = soils.values().stream()
                 .filter(x -> x.getLocation().getChunk().equals(chunk))
                 .collect(Collectors.toSet());
 
@@ -132,8 +133,8 @@ public class EntityStateContainer {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        soils.removeAll(soilsAtChunk);
-        plants.removeAll(plantsAtChunk);
+        soilsAtChunk.forEach(x -> soils.remove(x.getLocation()));
+        plantsAtChunk.forEach(x -> plants.remove(x.getLocation()));
 
         soilsAtChunk.forEach(this::save);
         plantsAtChunk.forEach(this::save);
@@ -148,8 +149,8 @@ public class EntityStateContainer {
     }
 
     public void saveAll() {
-        soils.forEach(this::save);
-        plants.forEach(this::save);
+        soils.values().forEach(this::save);
+        plants.values().forEach(this::save);
     }
 
     private void delete(Soil soil) {
@@ -169,7 +170,7 @@ public class EntityStateContainer {
     }
 
     public void update() {
-        plants.forEach(this::update);
+        plants.values().forEach(this::update);
     }
 
     private void update(Plant plant) {
