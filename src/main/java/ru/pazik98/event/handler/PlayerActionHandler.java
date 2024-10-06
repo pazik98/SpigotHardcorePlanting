@@ -26,6 +26,7 @@ public class PlayerActionHandler {
     }
 
     public void harvestPlant(PlayerInteractEvent e) {
+        if (!container.isPlant(e.getClickedBlock().getLocation())) return;
         Block block = e.getClickedBlock();
         List<ItemStack> harvest = container.getPlant(block.getLocation()).getCrops();
 
