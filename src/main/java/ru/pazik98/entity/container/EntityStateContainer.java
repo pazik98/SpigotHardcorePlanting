@@ -59,7 +59,6 @@ public class EntityStateContainer {
     }
 
     public Soil getSoil(Location location) {
-        logger.warning("all soils" + soils);
         Optional<Soil> matchedSoil = soils.values().stream()
                 .filter(x -> x.getLocation().equals(location))
                 .findFirst();
@@ -94,7 +93,6 @@ public class EntityStateContainer {
     }
 
     public Plant getPlant(Location location) {
-        logger.warning("all plants" + plants.toString());
         Optional<Plant> matchedPlant = plants.values().stream()
                 .filter(x -> x.getLocation().equals(location))
                 .findFirst();
@@ -175,16 +173,17 @@ public class EntityStateContainer {
     }
 
     private void update(Plant plant) {
-        if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
-            destroyPlant(plant.getLocation());
-            return;
-        }
-        // Check for death
+//        if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
+//            destroyPlant(plant.getLocation());
+//            return;
+//        }
+
         if (plant.isDead()) {
             destroyPlant(plant.getLocation());
             plant.getLocation().getBlock().setType(Material.DEAD_BUSH);
             return;
         }
+
         plant.incrementUpdatesTickNumber();
         if (Util.getRandom((float) (1 / config.getDouble("plants-update-ticks")))) {
             plant.update();

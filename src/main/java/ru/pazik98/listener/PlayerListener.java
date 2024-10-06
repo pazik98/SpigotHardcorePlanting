@@ -35,6 +35,7 @@ public class PlayerListener implements Listener {
             if (isHoe(material)) {
                 handler.makeFarmland(e);
 
+                // TODO: replace isSeedling by isPlant
                 if (isSeedling(block.getLocation())) {
                     handler.harvestPlant(e);
                 }
