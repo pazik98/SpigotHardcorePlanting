@@ -51,11 +51,10 @@ public class EntityStateContainer {
 
     public void destroySoil(Location location) {
         Soil soil = getSoil(location);
-        soils.remove(soil);
+        if (soil.getPlant() != null) destroyPlant(soil.getPlant());
+        soils.remove(soil.getLocation());
         delete(soil);
         logger.warning("Destroyed soil: " + soil);
-        if (soil.getPlant() != null) destroyPlant(soil.getPlant());
-
     }
 
     public Soil getSoil(Location location) {
@@ -83,13 +82,13 @@ public class EntityStateContainer {
     public void destroyPlant(Location location) {
         Plant plant = getPlant(location);
         destroyPlant(plant);
-        logger.warning("Destroyed plant: " + plant);
     }
 
     private void destroyPlant(Plant plant) {
-        plants.remove(plant);
+        plants.remove(plant.getLocation());
         delete(plant);
         plant.getSoil().setPlant(null);
+        logger.warning("Destroyed plant: " + plant);
     }
 
     public Plant getPlant(Location location) {
@@ -173,10 +172,10 @@ public class EntityStateContainer {
     }
 
     private void update(Plant plant) {
-//        if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
-//            destroyPlant(plant.getLocation());
-//            return;
-//        }
+        if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
+            destroyPlant(plant.getLocation());
+            return;
+        }
 
         if (plant.isDead()) {
             destroyPlant(plant.getLocation());

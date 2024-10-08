@@ -3,6 +3,7 @@ package ru.pazik98.listener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -12,6 +13,8 @@ import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.entity.plant.PlantType;
 import ru.pazik98.plugin.HardcorePlanting;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class WorldListener implements Listener {
@@ -53,13 +56,28 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent e) {
-        e.getBlocks().stream()
-                .filter(block -> container.isPlant(block.getLocation()) || container.isSoil(block.getLocation()))
-                .forEach(block -> checkAndDestroy(block.getLocation()));
+        handlePistonDestroy(e.getBlocks());
+    }
+
+    @EventHandler
+    public void OnPistonRetract(BlockPistonRetractEvent e) {
+        handlePistonDestroy(e.getBlocks());
     }
 
     private void checkAndDestroy(Location location) {
         if (container.isSoil(location)) container.destroySoil(location);
         if (container.isPlant(location)) container.destroyPlant(location);
+    }
+
+    private void handlePistonDestroy(List<Block> changedBlocks) {
+        List<Block> blocks =  changedBlocks.stream()
+                .filter(block -> container.isSoil(block.getLocation()) || container.isPlant(block.getLocation()))
+                .toList();
+
+        blocks.stream()
+                .filter(block -> container.isSoil(block.getLocation()))
+                .forEach(block -> block.getLocation().getBlock().setType(Material.DIRT));
+
+        blocks.forEach(block -> checkAndDestroy(block.getLocation()));
     }
 }
