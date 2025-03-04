@@ -35,6 +35,7 @@ public class PlayerActionHandler {
                 .collect(Collectors.toSet())
                 .forEach(x -> x.setPickupDelay(0));
 
+
         container.destroyPlant(block.getLocation());
         block.setType(Material.AIR);
         logger.warning("Harvested " + block.getType() + " at " + block.getLocation());

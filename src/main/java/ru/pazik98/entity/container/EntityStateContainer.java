@@ -75,6 +75,7 @@ public class EntityStateContainer {
         plants.put(location, plant);
         save(plant);
         save(soil);
+        location.getBlock().getDrops().clear();
         logger.warning("Created plant: " + plant);
         return plant;
     }

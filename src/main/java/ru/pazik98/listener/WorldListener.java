@@ -5,16 +5,21 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.entity.plant.PlantType;
+import ru.pazik98.entity.soil.Soil;
 import ru.pazik98.plugin.HardcorePlanting;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class WorldListener implements Listener {
@@ -34,6 +39,7 @@ public class WorldListener implements Listener {
         checkAndDestroy(e.getBlock().getLocation());
     }
 
+    //TODO: Fix TNT explode (soil is alive)
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         checkAndDestroy(e.getBlock().getLocation());
@@ -54,14 +60,24 @@ public class WorldListener implements Listener {
         EntityStateContainer.getInstance().unload(e.getChunk());
     }
 
-    @EventHandler
+    @EventHandler()
     public void onPistonExtend(BlockPistonExtendEvent e) {
         handlePistonDestroy(e.getBlocks());
     }
 
-    @EventHandler
-    public void OnPistonRetract(BlockPistonRetractEvent e) {
+    @EventHandler()
+    public void onPistonRetract(BlockPistonRetractEvent e) {
         handlePistonDestroy(e.getBlocks());
+    }
+
+    @EventHandler
+    public void onDropItem(BlockDropItemEvent e) {
+
+    }
+
+    @EventHandler
+    public void onEntityChangeEvent(EntityChangeBlockEvent e) {
+
     }
 
     private void checkAndDestroy(Location location) {
@@ -70,13 +86,21 @@ public class WorldListener implements Listener {
     }
 
     private void handlePistonDestroy(List<Block> changedBlocks) {
-        List<Block> blocks =  changedBlocks.stream()
+        List<Block> blocks = changedBlocks.stream()
                 .filter(block -> container.isSoil(block.getLocation()) || container.isPlant(block.getLocation()))
                 .toList();
 
+        List<Block> soilBlocks = blocks.stream().filter(block -> container.isSoil(block.getLocation())).toList();
+        soilBlocks.forEach(block -> block.setType(Material.DIRT));
+        soilBlocks.stream()
+                .map(block -> container.getSoil(block.getLocation()))
+                .map(Soil::getPlant)
+                .filter(Objects::nonNull)
+                .forEach(plant -> plant.getLocation().getBlock().setType(Material.AIR));
+
         blocks.stream()
-                .filter(block -> container.isSoil(block.getLocation()))
-                .forEach(block -> block.getLocation().getBlock().setType(Material.DIRT));
+                .filter(block -> container.isPlant(block.getLocation()))
+                .forEach(block -> block.setType(Material.AIR));
 
         blocks.forEach(block -> checkAndDestroy(block.getLocation()));
     }
