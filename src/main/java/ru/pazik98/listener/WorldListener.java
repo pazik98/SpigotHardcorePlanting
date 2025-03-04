@@ -5,19 +5,15 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.entity.plant.PlantType;
 import ru.pazik98.entity.soil.Soil;
-import ru.pazik98.plugin.HardcorePlanting;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -36,18 +32,18 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        checkAndDestroy(e.getBlock().getLocation());
+        checkAndDestroyState(e.getBlock().getLocation());
     }
 
     //TODO: Fix TNT explode (soil is alive)
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        checkAndDestroy(e.getBlock().getLocation());
+        checkAndDestroyState(e.getBlock().getLocation());
     }
 
     @EventHandler
     public void onBlockFade(BlockFadeEvent e) {
-        checkAndDestroy(e.getBlock().getLocation());
+        checkAndDestroyState(e.getBlock().getLocation());
     }
 
     @EventHandler
@@ -80,7 +76,7 @@ public class WorldListener implements Listener {
 
     }
 
-    private void checkAndDestroy(Location location) {
+    private void checkAndDestroyState(Location location) {
         if (container.isSoil(location)) container.destroySoil(location);
         if (container.isPlant(location)) container.destroyPlant(location);
     }
@@ -102,6 +98,6 @@ public class WorldListener implements Listener {
                 .filter(block -> container.isPlant(block.getLocation()))
                 .forEach(block -> block.setType(Material.AIR));
 
-        blocks.forEach(block -> checkAndDestroy(block.getLocation()));
+        blocks.forEach(block -> checkAndDestroyState(block.getLocation()));
     }
 }

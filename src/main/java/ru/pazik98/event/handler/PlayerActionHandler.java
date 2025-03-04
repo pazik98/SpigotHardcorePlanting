@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Item;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.pazik98.entity.container.EntityStateContainer;
@@ -13,7 +12,6 @@ import ru.pazik98.entity.soil.SoilState;
 import ru.pazik98.util.Convert;
 
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -22,7 +20,7 @@ public class PlayerActionHandler {
     private final EntityStateContainer container = EntityStateContainer.getInstance();
 
     public void makeFarmland(PlayerInteractEvent e) {
-        if (isLand(e.getClickedBlock().getType())) container.createSoil(e.getClickedBlock());
+        if (canBeSoil(e.getClickedBlock().getType())) container.createSoil(e.getClickedBlock());
     }
 
     public void harvestPlant(PlayerInteractEvent e) {
@@ -83,7 +81,7 @@ public class PlayerActionHandler {
         e.getPlayer().sendMessage(message.toString());
     }
 
-    private boolean isLand(Material m) {
+    private boolean canBeSoil(Material m) {
         return m.equals(Material.GRASS_BLOCK) || m.equals(Material.DIRT_PATH) || m.equals(Material.DIRT);
     }
 }
