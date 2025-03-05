@@ -8,6 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import ru.pazik98.entity.container.EntityStateContainer;
@@ -39,6 +41,14 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         checkAndDestroyState(e.getBlock().getLocation());
+    }
+
+    @EventHandler
+    public void OnEntityExplode(EntityExplodeEvent e) {
+        for (Block block : e.blockList())
+        {
+            checkAndDestroyState(block.getLocation());
+        }
     }
 
     @EventHandler
