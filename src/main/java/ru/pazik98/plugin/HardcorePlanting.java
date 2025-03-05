@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import ru.pazik98.command.CommandShp;
 import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.listener.PlayerListener;
 import ru.pazik98.listener.WorldListener;
@@ -27,6 +28,8 @@ public class HardcorePlanting extends JavaPlugin {
     public void onEnable() {
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new WorldListener(), this);
+
+        this.getCommand("shp").setExecutor(new CommandShp());
 
         initConfig();
         updateLoadedChunks();

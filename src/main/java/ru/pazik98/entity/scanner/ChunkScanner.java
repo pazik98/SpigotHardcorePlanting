@@ -77,8 +77,6 @@ public class ChunkScanner {
         allErrors.addAll(expectedPlantErrors);
         allErrors.addAll(unexpectedSoilErrors);
         allErrors.addAll(unexpectedPlantErrors);
-
-        HardcorePlanting.getInstance().getLogger().warning("Chunk " + chunk + "scanned. " + allErrors.size() + "errors.");
         return allErrors;
     }
 

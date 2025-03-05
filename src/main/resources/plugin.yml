@@ -5,3 +5,9 @@ main: ru.pazik98.plugin.HardcorePlanting
 api-version: 1.13
 author: pazik98
 depend: [NDatabase]
+
+commands:
+  shp:
+    description: DESCRIPTION
+    usage: /<command>
+    permission: hardcoreplanting.admin
