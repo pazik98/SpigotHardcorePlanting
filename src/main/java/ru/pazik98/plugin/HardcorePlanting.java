@@ -3,6 +3,9 @@ package ru.pazik98.plugin;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.pazik98.command.CommandShp;
@@ -10,15 +13,19 @@ import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.listener.PlayerListener;
 import ru.pazik98.listener.WorldListener;
 
-import java.util.ArrayList;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HardcorePlanting extends JavaPlugin {
 
     @Getter
     private static HardcorePlanting instance;
+
+    @Getter
+    private FileConfiguration plantConfig;
 
     public HardcorePlanting() {
         instance = this;
@@ -31,7 +38,7 @@ public class HardcorePlanting extends JavaPlugin {
 
         this.getCommand("shp").setExecutor(new CommandShp());
 
-        initConfig();
+        initConfigs();
         updateLoadedChunks();
         initEntityContainer();
     }
@@ -41,8 +48,38 @@ public class HardcorePlanting extends JavaPlugin {
         EntityStateContainer.getInstance().saveAll();
     }
 
-    public void initConfig() {
+    public void initConfigs() {
         this.saveDefaultConfig();
+
+        String plantConfigName = "plant-config.yml";
+        File plantConfigFile = new File(getDataFolder(), plantConfigName);
+        if (!plantConfigFile.exists()) {
+            getLogger().severe(String.format("%s not found. Loading default config...", plantConfigName));
+            saveResource(plantConfigName, false);
+            plantConfig = YamlConfiguration.loadConfiguration(plantConfigFile);
+        } else {
+            try {
+                plantConfig = YamlConfiguration.loadConfiguration(plantConfigFile);
+            } catch (Exception e) {
+                getLogger().severe(String.format("Can't read %s. Loading default config...", plantConfigName));
+                try {
+                    plantConfig = readConfigFromResource(plantConfigName);
+                } catch (InvalidConfigurationException ie) {
+                    getLogger().warning(ie.getMessage());
+                    this.onDisable();
+                }
+            }
+        }
+
+    }
+
+    private YamlConfiguration readConfigFromResource(String resource) throws InvalidConfigurationException {
+        InputStream inputStream = getResource(resource);
+        String text = new BufferedReader(new InputStreamReader(inputStream))
+                .lines().collect(Collectors.joining("\n"));
+        var config = new YamlConfiguration();
+        config.loadFromString(text);
+        return config;
     }
 
     public void initEntityContainer() {
