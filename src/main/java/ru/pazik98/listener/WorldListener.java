@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -77,12 +79,18 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onDropItem(BlockDropItemEvent e) {
-
     }
 
     @EventHandler
     public void onEntityChangeEvent(EntityChangeBlockEvent e) {
 
+    }
+
+    @EventHandler
+    public void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        if (e.getEntity() instanceof Villager && (PlantPresetManager.isPlant(e.getBlock().getType()) || PlantPresetManager.isPlant(e.getTo()) )) {
+            e.setCancelled(true);
+        }
     }
 
     private void checkAndDestroyState(Location location) {
