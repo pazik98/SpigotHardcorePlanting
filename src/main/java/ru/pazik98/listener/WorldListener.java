@@ -59,6 +59,10 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent e) {
+        if (e.isNewChunk()) {
+            // check and fix
+        }
+
         EntityStateContainer.getInstance().load(e.getChunk());
     }
 
@@ -86,6 +90,7 @@ public class WorldListener implements Listener {
 
     }
 
+    //TODO FIX. DONT WORK!!!
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         if (e.getEntity() instanceof Villager && (PlantPresetManager.isPlant(e.getBlock().getType()) || PlantPresetManager.isPlant(e.getTo()) )) {
