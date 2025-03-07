@@ -51,3 +51,53 @@ CARROT:
   maturation-ticks-cost: 5
   decay-fertilizer-cost: 0
   decay-ticks-cost: 10
+################################
+BEETROOT:
+  name: "Beetroot"
+  block-material: "BEETROOTS"
+  seed-material: "BEETROOT_SEEDS"
+  harvest-material: "BEETROOT"
+  ###
+  growth-stages: 4
+  maturation-stages: 8
+  decay-stages: 10
+  ###
+  expected-light: 15
+  expected-humidity: 38.0
+  expected-temperature: 17.0
+  expected-harvest-count: 3.0
+  expected-seed-count: 0.0
+  ###
+  growth-water-cost: 3
+  growth-fertilizer-cost: 12000
+  growth-ticks-cost: 1
+  maturation-water-cost: 10
+  maturation-fertilizer-cost: 10
+  maturation-ticks-cost: 5
+  decay-fertilizer-cost: 0
+  decay-ticks-cost: 10
+  ###############################
+  POTATO:
+    name: "Potato"
+    block-material: "POTATOES"
+    seed-material: "POTATO"
+    harvest-material: "POTATO"
+    ###
+    growth-stages: 4
+    maturation-stages: 8
+    decay-stages: 10
+    ###
+    expected-light: 15
+    expected-humidity: 38.0
+    expected-temperature: 17.0
+    expected-harvest-count: 3.0
+    expected-seed-count: 0.0
+    ###
+    growth-water-cost: 3
+    growth-fertilizer-cost: 12000
+    growth-ticks-cost: 1
+    maturation-water-cost: 10
+    maturation-fertilizer-cost: 10
+    maturation-ticks-cost: 5
+    decay-fertilizer-cost: 0
+    decay-ticks-cost: 10
