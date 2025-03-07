@@ -15,6 +15,8 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import ru.pazik98.entity.container.EntityStateContainer;
 import ru.pazik98.entity.plant.PlantPresetManager;
+import ru.pazik98.entity.scanner.ChunkFixer;
+import ru.pazik98.entity.scanner.ChunkScanner;
 import ru.pazik98.entity.soil.Soil;
 
 import java.util.List;
@@ -60,7 +62,9 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent e) {
         if (e.isNewChunk()) {
-            // check and fix
+            var chunkScanner = new ChunkScanner();
+            var chunkFixer = new ChunkFixer();
+            chunkScanner.scanInfoErrors(e.getChunk()).forEach(chunkFixer::fix);
         }
 
         EntityStateContainer.getInstance().load(e.getChunk());

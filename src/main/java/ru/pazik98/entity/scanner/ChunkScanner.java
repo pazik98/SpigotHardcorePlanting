@@ -49,7 +49,7 @@ public class ChunkScanner {
                 .map(location -> new EntityInfoError(location, EntityInfoErrorType.EXPECTED_PLANT))
                 .collect(Collectors.toSet());
 
-        // Check for unexpected soil rrors
+        // Check for unexpected soil errors
         Set<Block> allSoilBlocks = allSoils.stream()
                 .map(soil -> soil.getLocation().getBlock())
                 .collect(Collectors.toSet());
