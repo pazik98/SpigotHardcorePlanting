@@ -3,17 +3,21 @@
 
 ###
 WHEAT:
-  material: "WHEAT"
+  name: "Wheat"
+  block-material: "WHEAT"
   seed-material: "WHEAT_SEEDS"
-  seed-count: 2.0
+  harvest-material: "WHEAT"
+  ###
   growth-stages: 8
   maturation-stages: 8
   decay-stages: 10
+  ###
   expected-light: 15
-  expected-humidity: 38
-  expected-temperature: 17
-  expected-harvest: 3
-  fertilizer-ratio: 5
+  expected-humidity: 38.0
+  expected-temperature: 17.0
+  expected-harvest-count: 3.0
+  expected-seed-count: 2.0
+  ###
   growth-water-cost: 3
   growth-fertilizer-cost: 12000
   growth-ticks-cost: 1

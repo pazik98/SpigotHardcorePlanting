@@ -10,6 +10,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.pazik98.command.CommandShp;
 import ru.pazik98.entity.container.EntityStateContainer;
+import ru.pazik98.entity.plant.PlantPreset;
+import ru.pazik98.entity.plant.PlantPresetManager;
 import ru.pazik98.listener.PlayerListener;
 import ru.pazik98.listener.WorldListener;
 
@@ -23,9 +25,6 @@ public class HardcorePlanting extends JavaPlugin {
 
     @Getter
     private static HardcorePlanting instance;
-
-    @Getter
-    private FileConfiguration plantConfig;
 
     public HardcorePlanting() {
         instance = this;
@@ -53,8 +52,11 @@ public class HardcorePlanting extends JavaPlugin {
 
         String plantConfigName = "plant-config.yml";
         File plantConfigFile = new File(getDataFolder(), plantConfigName);
+        YamlConfiguration plantConfig;
+
+        // Try to read plant config
         if (!plantConfigFile.exists()) {
-            getLogger().severe(String.format("%s not found. Loading default config...", plantConfigName));
+            getLogger().config(String.format("%s not found. Loading default config...", plantConfigName));
             saveResource(plantConfigName, false);
             plantConfig = YamlConfiguration.loadConfiguration(plantConfigFile);
         } else {
@@ -65,12 +67,21 @@ public class HardcorePlanting extends JavaPlugin {
                 try {
                     plantConfig = readConfigFromResource(plantConfigName);
                 } catch (InvalidConfigurationException ie) {
-                    getLogger().warning(ie.getMessage());
+                    e.printStackTrace();
                     this.onDisable();
+                    return;
                 }
             }
         }
 
+        // Try to load plant config to PlantPresetManager
+        try {
+            PlantPresetManager.loadPresets(plantConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        getLogger().warning(PlantPresetManager.getPreset("Wheat").toString());
     }
 
     private YamlConfiguration readConfigFromResource(String resource) throws InvalidConfigurationException {
