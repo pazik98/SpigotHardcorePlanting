@@ -4,20 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import ru.pazik98.entity.container.EntityStateContainer;
-import ru.pazik98.entity.plant.PlantState;
-import ru.pazik98.entity.plant.PlantType;
-import ru.pazik98.entity.soil.SoilState;
+import ru.pazik98.entity.plant.PlantPresetManager;
 import ru.pazik98.event.handler.PlayerActionHandler;
-import ru.pazik98.util.Convert;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 public class PlayerListener implements Listener {
@@ -41,12 +35,12 @@ public class PlayerListener implements Listener {
                 }
             }
 
-            if (PlantType.getPlantType(material) != null && block.getType().equals(Material.FARMLAND)) {
+            if (PlantPresetManager.getPresetBySeed(material) != null && block.getType().equals(Material.FARMLAND)) {
                 handler.plantSeedling(e);
             }
 
             if (material.equals(Material.PAPER)) {
-                if (PlantType.isPlant(block.getType())) {
+                if (PlantPresetManager.isPlant(block.getType())) {
                     handler.showPlantInfo(e);
                 }
 

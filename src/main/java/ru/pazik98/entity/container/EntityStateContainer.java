@@ -11,9 +11,7 @@ import ru.pazik98.db.repository.SoilStateDataRepository;
 import ru.pazik98.db.repository.NDatabaseSoilRepository;
 import ru.pazik98.db.repository.data.PlantStateData;
 import ru.pazik98.db.repository.data.SoilStateData;
-import ru.pazik98.entity.plant.Plant;
-import ru.pazik98.entity.plant.PlantState;
-import ru.pazik98.entity.plant.PlantType;
+import ru.pazik98.entity.plant.*;
 import ru.pazik98.entity.soil.Soil;
 import ru.pazik98.entity.soil.SoilState;
 import ru.pazik98.plugin.HardcorePlanting;
@@ -66,7 +64,7 @@ public class EntityStateContainer {
 
     public Plant createPlant(Soil soil, Location location, Material seedMaterial) {
         PlantState plant = PlantState.builder()
-                .plantType(PlantType.getPlantType(seedMaterial))
+                .plantPreset(PlantPresetManager.getPresetBySeed(seedMaterial))
                 .plantingTick(location.getWorld().getFullTime())
                 .location(location)
                 .soil(soil)
@@ -173,7 +171,7 @@ public class EntityStateContainer {
     }
 
     private void update(Plant plant) {
-        if (!plant.getPlantType().getPlantMaterial().equals(plant.getLocation().getBlock().getType())) {
+        if (!plant.getPlantPreset().getBlockMaterial().equals(plant.getLocation().getBlock().getType())) {
             destroyPlant(plant.getLocation());
             return;
         }

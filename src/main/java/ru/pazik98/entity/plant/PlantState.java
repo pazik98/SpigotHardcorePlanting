@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class PlantState implements Plant {
 
     @Getter
-    private PlantType plantType;
+    private PlantPreset plantPreset;
 
     @Getter
     private long plantingTick;
@@ -55,7 +55,7 @@ public class PlantState implements Plant {
     private final Logger logger = Bukkit.getLogger();
 
     public PlantState(PlantStateData plantStateData) {
-        this.plantType = PlantType.getPlantType(Material.getMaterial(plantStateData.getSeedMaterial()));
+        this.plantPreset = PlantPresetManager.getPresetBySeed(Material.getMaterial(plantStateData.getSeedMaterial()));
         this.plantingTick = plantStateData.getPlantingTick();
         this.updatesTickNumber = plantStateData.getUpdateTicks();
         this.growthPhase = plantStateData.getGrowthPhase();
@@ -73,13 +73,13 @@ public class PlantState implements Plant {
     @Override
     public void update() {
         // calculating deviation
-        float humidityDiff = getPlantType().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
-        float temperatureDiff = getPlantType().getExpectedTemperature() - Convert.temperatureToDegrees(getSoil().getTemperature());
+        float humidityDiff = getPlantPreset().getExpectedHumidity() - Convert.humidityToPercent(getSoil().getHumidity());
+        float temperatureDiff = getPlantPreset().getExpectedTemperature() - Convert.temperatureToDegrees(getSoil().getTemperature());
 
         // Growth phase is maximum?
-        if (growthPhase >= plantType.getGrowthStageCount() - 1) {
+        if (growthPhase >= plantPreset.getGrowthStageCount() - 1) {
             // Maturation phase is maximum?
-            if (growthPhase >= plantType.getGrowthStageCount() + plantType.getMaturationStageCount() - 1) {
+            if (growthPhase >= plantPreset.getGrowthStageCount() + plantPreset.getMaturationStageCount() - 1) {
                 // calculating decaying chance bonus
                 float decayChanceHumidityBonus = GrowthBonus.DECAY_SPEED.getHumidityExcess() * humidityDiff;
                 if (humidityDiff < 0) decayChanceHumidityBonus = GrowthBonus.DECAY_SPEED.getHumidityDeficit() * humidityDiff;
@@ -87,7 +87,7 @@ public class PlantState implements Plant {
                 float decayChanceTemperatureBonus = GrowthBonus.DECAY_SPEED.getTemperatureExcess() * temperatureDiff;
                 if (temperatureDiff < 0) decayChanceTemperatureBonus = GrowthBonus.DECAY_SPEED.getTemperatureDeficit();
 
-                float decayChance = (decayChanceHumidityBonus + decayChanceTemperatureBonus) / plantType.getDecayTicksCost();
+                float decayChance = (decayChanceHumidityBonus + decayChanceTemperatureBonus) / plantPreset.getDecayTicksCost();
                 if (Util.getRandom(decayChance)) {
                     decay();
                 }
@@ -97,9 +97,9 @@ public class PlantState implements Plant {
                 if (temperatureDiff < 0) matureChanceTemperatureBonus = GrowthBonus.MATURITY_SPEED.getTemperatureDeficit() * temperatureDiff;
 
                 float matureChanceFertilizerBonus = 0;
-                if (soil.getFertilizer() >= plantType.getMaturationFertilizerCost()) matureChanceFertilizerBonus = GrowthBonus.MATURITY_SPEED.getFertilizer();
+                if (soil.getFertilizer() >= plantPreset.getMaturationFertilizerCost()) matureChanceFertilizerBonus = GrowthBonus.MATURITY_SPEED.getFertilizer();
 
-                float matureChance = (matureChanceTemperatureBonus + matureChanceFertilizerBonus) / plantType.getMaturationTicksCost();
+                float matureChance = (matureChanceTemperatureBonus + matureChanceFertilizerBonus) / plantPreset.getMaturationTicksCost();
                 if (Util.getRandom(matureChance)) {
                     mature();
                 }
@@ -111,9 +111,9 @@ public class PlantState implements Plant {
             if (temperatureDiff < 0) growChanceTemperatureBonus = GrowthBonus.GROWTH_SPEED.getTemperatureDeficit() * temperatureDiff;
 
             float growChanceFertilizerBonus = 0;
-            if (soil.getFertilizer() >= plantType.getGrowthFertilizerCost()) growChanceFertilizerBonus = GrowthBonus.GROWTH_SPEED.getFertilizer();
+            if (soil.getFertilizer() >= plantPreset.getGrowthFertilizerCost()) growChanceFertilizerBonus = GrowthBonus.GROWTH_SPEED.getFertilizer();
 
-            float growChance = (growChanceTemperatureBonus + growChanceFertilizerBonus) / plantType.getGrowthTicksCost();
+            float growChance = (growChanceTemperatureBonus + growChanceFertilizerBonus) / plantPreset.getGrowthTicksCost();
 
             // Plant is trying to grow?
             if (Util.getRandom(growChance)) {
@@ -139,14 +139,14 @@ public class PlantState implements Plant {
     @Override
     public void grow() {
         // Check for needed resources
-        if (getSoil().getWater() < getPlantType().getGrowthWaterCost()) {
+        if (getSoil().getWater() < getPlantPreset().getGrowthWaterCost()) {
             return;
         }
 
         // consume resources
-        getSoil().decreaseWater(getPlantType().getGrowthWaterCost());
-        if (soil.getFertilizer() >= plantType.getGrowthFertilizerCost()) {
-            soil.decreaseFertilizer(plantType.getGrowthFertilizerCost());
+        getSoil().decreaseWater(getPlantPreset().getGrowthWaterCost());
+        if (soil.getFertilizer() >= plantPreset.getGrowthFertilizerCost()) {
+            soil.decreaseFertilizer(plantPreset.getGrowthFertilizerCost());
         }
 
         // change age
@@ -163,27 +163,27 @@ public class PlantState implements Plant {
     @Override
     public void mature() {
         // check for needed resources
-        if (soil.getWater() < plantType.getMaturationWaterCost()) {
+        if (soil.getWater() < plantPreset.getMaturationWaterCost()) {
             return;
         }
         // consume
         float productivityFertilizerBonus = 0;
 
-        soil.decreaseWater(plantType.getMaturationWaterCost());
-        if (soil.getFertilizer() >= plantType.getMaturationFertilizerCost()) {
-            soil.decreaseFertilizer(plantType.getMaturationFertilizerCost());
+        soil.decreaseWater(plantPreset.getMaturationWaterCost());
+        if (soil.getFertilizer() >= plantPreset.getMaturationFertilizerCost()) {
+            soil.decreaseFertilizer(plantPreset.getMaturationFertilizerCost());
             productivityFertilizerBonus = GrowthBonus.CROP_AMOUNT.getFertilizer();
         }
 
         // change maturity
         growthPhase++;
-        maturity = (float) (growthPhase + 1 - plantType.getGrowthStageCount()) / plantType.getMaturationStageCount();
+        maturity = (float) (growthPhase + 1 - plantPreset.getGrowthStageCount()) / plantPreset.getMaturationStageCount();
 
         // change productivity
-        float humidityDiff = soil.getHumidity() - plantType.getExpectedHumidity();
+        float humidityDiff = soil.getHumidity() - plantPreset.getExpectedHumidity();
         float productivityHumidityBonus = GrowthBonus.CROP_AMOUNT.getHumidityExcess() * humidityDiff;
         if (humidityDiff < 0) productivityHumidityBonus = GrowthBonus.CROP_AMOUNT.getHumidityDeficit() * humidityDiff;
-        productivity += ((float) (growthPhase + 1 - plantType.getGrowthStageCount()) / plantType.getMaturationStageCount() *
+        productivity += ((float) (growthPhase + 1 - plantPreset.getGrowthStageCount()) / plantPreset.getMaturationStageCount() *
                 (productivityHumidityBonus + productivityFertilizerBonus));
 
         logger.warning("maturing " + this);
@@ -197,23 +197,23 @@ public class PlantState implements Plant {
     @Override
     public void decay() {
         // consume resources
-        if (soil.getWater() >= plantType.getDecayWaterCost()) {
-            soil.decreaseWater(plantType.getDecayWaterCost());
+        if (soil.getWater() >= plantPreset.getDecayWaterCost()) {
+            soil.decreaseWater(plantPreset.getDecayWaterCost());
         }
-        if (soil.getFertilizer() >= plantType.getDecayFertilizerCost()) {
-            soil.decreaseFertilizer(plantType.getDecayFertilizerCost());
+        if (soil.getFertilizer() >= plantPreset.getDecayFertilizerCost()) {
+            soil.decreaseFertilizer(plantPreset.getDecayFertilizerCost());
         }
 
         //change productivity
         growthPhase++;
-        decay = (float) (growthPhase + 1 - plantType.getGrowthStageCount() - plantType.getMaturationStageCount()) / plantType.getDecayStageCount();
+        decay = (float) (growthPhase + 1 - plantPreset.getGrowthStageCount() - plantPreset.getMaturationStageCount()) / plantPreset.getDecayStageCount();
 
-        float loss = (float) ((productivity / (plantType.getDecayStageCount() - (growthPhase + 1 - plantType.getGrowthStageCount() - plantType.getMaturationStageCount()))) - 0.01);
+        float loss = (float) ((productivity / (plantPreset.getDecayStageCount() - (growthPhase + 1 - plantPreset.getGrowthStageCount() - plantPreset.getMaturationStageCount()))) - 0.01);
         if (loss > productivity) productivity = 0;
         else productivity -= loss;
 
         if (decay >= 1) die();
-        logger.warning(String.valueOf(plantType.getDecayStageCount() - (growthPhase + 1 - plantType.getGrowthStageCount() - plantType.getMaturationStageCount())));
+        logger.warning(String.valueOf(plantPreset.getDecayStageCount() - (growthPhase + 1 - plantPreset.getGrowthStageCount() - plantPreset.getMaturationStageCount())));
         logger.warning("decaying " + this);
     }
 
@@ -231,21 +231,21 @@ public class PlantState implements Plant {
         float happiness = 100.0f;
         // light reason
         float light = 1f;
-        if (getLocation().getBlock().getLightFromSky() < getPlantType().getExpectedLight()) light = 0.0f;
+        if (getLocation().getBlock().getLightFromSky() < getPlantPreset().getExpectedLight()) light = 0.0f;
         // water reason
-        float water = 1.0f - Math.abs(getPlantType().getExpectedHumidity() / 100 - getSoil().getHumidity());
+        float water = 1.0f - Math.abs(getPlantPreset().getExpectedHumidity() / 100 - getSoil().getHumidity());
         // temperature reason
-        float temperature = 1.0f - Math.abs(Convert.degreesToTemperature(getPlantType().getExpectedTemperature()) - getSoil().getTemperature()) / 4;
+        float temperature = 1.0f - Math.abs(Convert.degreesToTemperature(getPlantPreset().getExpectedTemperature()) - getSoil().getTemperature()) / 4;
         return (happiness + water + temperature) / 3;
     }
 
     @Override
     public List<ItemStack> getCrops() {
         List<ItemStack> harvest = new ArrayList<>();
-        int seedCount = Util.getRandomRound(plantType.getSeedCount() * productivity);
-        int cropCount = Util.getRandomRound(plantType.getExpectedHarvest() * productivity);
-        ItemStack seeds = new ItemStack(plantType.getSeedMaterial(), seedCount);
-        ItemStack crop = new ItemStack(plantType.getPlantMaterial(), cropCount);
+        int seedCount = Util.getRandomRound(plantPreset.getExpectedSeedCount() * productivity);
+        int cropCount = Util.getRandomRound(plantPreset.getExpectedHarvestCount() * productivity);
+        ItemStack seeds = new ItemStack(plantPreset.getSeedMaterial(), seedCount);
+        ItemStack crop = new ItemStack(plantPreset.getHarvestMaterial(), cropCount);
         harvest.add(seeds);
         harvest.add(crop);
         return harvest;

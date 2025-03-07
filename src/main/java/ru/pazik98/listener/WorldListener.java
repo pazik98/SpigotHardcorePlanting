@@ -9,11 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import ru.pazik98.entity.container.EntityStateContainer;
-import ru.pazik98.entity.plant.PlantType;
+import ru.pazik98.entity.plant.PlantPresetManager;
 import ru.pazik98.entity.soil.Soil;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlantGrow(BlockGrowEvent e) {
-        if (PlantType.isPlant(e.getBlock().getType())) {
+        if (PlantPresetManager.isPlant(e.getBlock().getType())) {
             e.setCancelled(true);
         }
     }

@@ -9,8 +9,22 @@ public class PlantPresetManager {
 
     private static final HashMap<String, PlantPreset> presetsMap = new HashMap<>();
 
-    public static PlantPreset getPreset(String name) {
+    public static PlantPreset getPresetByName(String name) {
         return presetsMap.get(name);
+    }
+
+    public static PlantPreset getPresetBySeed(Material seedMaterial) {
+        for (PlantPreset preset : presetsMap.values()) {
+            if (seedMaterial.equals(preset.getSeedMaterial())) return preset;
+        }
+        return null;
+    }
+
+    public static PlantPreset getPresetByBlock(Material blockMaterial) {
+        for (PlantPreset preset : presetsMap.values()) {
+            if (blockMaterial.equals(preset.getBlockMaterial())) return preset;
+        }
+        return null;
     }
 
     public static void loadPresets(YamlConfiguration config) {
@@ -41,5 +55,9 @@ public class PlantPresetManager {
                             .build()
             );
         }
+    }
+
+    public static boolean isPlant(Material blockMaterial) {
+        return getPresetByBlock(blockMaterial) != null;
     }
 }

@@ -26,7 +26,7 @@ public interface Plant {
 
     boolean isDead();
 
-    PlantType getPlantType();
+    PlantPreset getPlantPreset();
 
     long getPlantingTick();
 

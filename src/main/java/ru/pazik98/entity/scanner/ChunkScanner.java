@@ -7,12 +7,11 @@ import org.bukkit.block.Block;
 import ru.pazik98.db.repository.NDatabasePlantRepository;
 import ru.pazik98.db.repository.NDatabaseSoilRepository;
 import ru.pazik98.entity.container.EntityStateContainer;
+import ru.pazik98.entity.plant.PlantPresetManager;
 import ru.pazik98.entity.plant.PlantState;
-import ru.pazik98.entity.plant.PlantType;
 import ru.pazik98.entity.scanner.error.EntityInfoError;
 import ru.pazik98.entity.scanner.error.EntityInfoErrorType;
 import ru.pazik98.entity.soil.SoilState;
-import ru.pazik98.plugin.HardcorePlanting;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -67,7 +66,7 @@ public class ChunkScanner {
                 .collect(Collectors.toSet());
 
         Set<EntityInfoError> unexpectedPlantErrors = allBlocks.stream()
-                .filter(block -> PlantType.isPlant(block.getBlockData().getMaterial()))
+                .filter(block -> PlantPresetManager.isPlant(block.getBlockData().getMaterial()))
                 .filter(block -> !allPlantBlocks.contains(block))
                 .map(block -> new EntityInfoError(block.getLocation(), EntityInfoErrorType.UNEXPECTED_PLANT))
                 .collect(Collectors.toSet());
@@ -87,7 +86,7 @@ public class ChunkScanner {
 
     private boolean isGrowable(Location location)
     {
-        return PlantType.isPlant(location.getBlock().getBlockData().getMaterial());
+        return PlantPresetManager.isPlant(location.getBlock().getBlockData().getMaterial());
     }
 
     private Set<Block> getAllBlocks(Chunk chunk)

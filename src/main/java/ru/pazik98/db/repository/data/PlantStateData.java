@@ -64,7 +64,7 @@ public class PlantStateData extends NEntity<Integer> {
         this.y = plantState.getLocation().getBlockY();
         this.z = plantState.getLocation().getBlockZ();
         this.worldUID = plantState.getLocation().getWorld().getUID();
-        this.seedMaterial = plantState.getPlantType().getSeedMaterial().toString();
+        this.seedMaterial = plantState.getPlantPreset().getSeedMaterial().toString();
         this.plantingTick = plantState.getPlantingTick();
         this.updateTicks = plantState.getUpdatesTickNumber();
         this.growthPhase = plantState.getGrowthPhase();

@@ -56,7 +56,7 @@ public class PlayerActionHandler {
         if (plant == null) return;
         StringBuilder message = new StringBuilder();
         message.append("_______________________\n");
-        message.append(" --- ").append(plant.getPlantType()).append(" ---\n");
+        message.append(" --- ").append(plant.getPlantPreset().getName()).append(" ---\n");
         message.append(" Happiness: ").append(Math.round(plant.getHappiness())).append("%\n");
         message.append(" Growth time: ").append(Convert.ticksToTime(plant.getUpdatesTickNumber())).append("\n");
         message.append(" Growth phase: ").append(plant.getGrowthPhase()).append("\n");
