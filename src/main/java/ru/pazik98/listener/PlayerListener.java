@@ -29,8 +29,7 @@ public class PlayerListener implements Listener {
             if (isHoe(material)) {
                 handler.makeFarmland(e);
 
-                // TODO: replace isSeedling by isPlant
-                if (isSeedling(block.getLocation())) {
+                if (container.isPlant(block.getLocation())) {
                     handler.harvestPlant(e);
                 }
             }
@@ -58,9 +57,5 @@ public class PlayerListener implements Listener {
 
     private boolean isLand(Material m) {
         return m.equals(Material.GRASS_BLOCK) || m.equals(Material.DIRT_PATH) || m.equals(Material.DIRT);
-    }
-
-    private boolean isSeedling(Location location) {
-        return container.getPlant(location) != null;
     }
 }

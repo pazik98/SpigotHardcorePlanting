@@ -42,7 +42,6 @@ public class WorldListener implements Listener {
         checkAndDestroyState(e.getBlock().getLocation());
     }
 
-    //TODO: Fix TNT explode (soil is alive)
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         checkAndDestroyState(e.getBlock().getLocation());
@@ -96,7 +95,6 @@ public class WorldListener implements Listener {
 
     }
 
-    //TODO FIX. DONT WORK!!!
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         if (e.getEntity().getType() == EntityType.VILLAGER && (PlantPresetManager.isPlant(e.getBlock().getType()) || PlantPresetManager.isPlant(e.getTo()) )) {
