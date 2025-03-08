@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,7 @@ import ru.pazik98.entity.plant.PlantPresetManager;
 import ru.pazik98.entity.scanner.ChunkFixer;
 import ru.pazik98.entity.scanner.ChunkScanner;
 import ru.pazik98.entity.soil.Soil;
+import ru.pazik98.plugin.HardcorePlanting;
 
 import java.util.List;
 import java.util.Objects;
@@ -97,7 +99,7 @@ public class WorldListener implements Listener {
     //TODO FIX. DONT WORK!!!
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
-        if (e.getEntity() instanceof Villager && (PlantPresetManager.isPlant(e.getBlock().getType()) || PlantPresetManager.isPlant(e.getTo()) )) {
+        if (e.getEntity().getType() == EntityType.VILLAGER && (PlantPresetManager.isPlant(e.getBlock().getType()) || PlantPresetManager.isPlant(e.getTo()) )) {
             e.setCancelled(true);
         }
     }
